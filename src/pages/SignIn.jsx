@@ -1,0 +1,177 @@
+/* eslint-disable no-unused-vars */
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { FaGoogle, FaGithub } from "react-icons/fa";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { Link } from "react-router";
+import axios from "axios";
+import { serverURL } from "../App";
+import toast from "react-hot-toast";
+import { CgSpinner } from "react-icons/cg";
+
+const SignIn = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+
+    // Basic frontend validation
+    if (!email || !password) {
+      setError("Email and password are required");
+      toast.error("Email and password are required");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${serverURL}/api/auth/signin`,
+        { email, password },
+        { withCredentials: true }
+      );
+
+      if (res.status === 200) {
+        setLoading(false);
+        toast.success("Login Successful");
+        form.reset();
+        // navigate("/dashboard"); // future use
+      }
+    } catch (err) {
+      setLoading(false);
+      let message = "Something went wrong. Please try again";
+
+      if (err.response && err.response.data?.message) {
+        message = err.response.data.message;
+      } else if (err.request) {
+        message = "Server not responding. Please try later";
+      }
+
+      setError(message);
+      toast.error(message);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-bg px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-6xl bg-card rounded-2xl shadow-xl flex overflow-hidden"
+      >
+        {/* Left Side Info */}
+        <div className="hidden md:flex flex-col justify-center w-1/2 bg-light-bg p-10">
+          <h2 className="text-4xl font-bold mb-4 text-dark">Welcome Back 👋</h2>
+          <p className="text-dark text-lg mb-6">
+            Login to your account and continue managing your orders, customers,
+            and business seamlessly.
+          </p>
+          <ul className="space-y-2 text-dark">
+            <li>✔ Secure login system</li>
+            <li>✔ Access your dashboard</li>
+            <li>✔ Fast & reliable experience</li>
+          </ul>
+        </div>
+
+        {/* Right Side Form */}
+        <div className="w-full md:w-1/2 p-8">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bold text-dark">Login</h2>
+            <p className="text-text-secondary text-sm mt-1">
+              Enter your credentials to continue
+            </p>
+          </div>
+
+          {/* Social Login */}
+          <div className="space-y-3 mb-5">
+            <button className="w-full cursor-pointer flex items-center justify-center gap-2 border py-2 rounded-lg  text-dark hover:bg-green-200 hover:brightness-90 transition">
+              <FaGoogle className="w-5 h-5" />
+              Continue with Google
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center gap-2 my-4">
+            <div className="flex-1 h-px bg-light-bg"></div>
+            <span className="text-text-secondary text-sm">OR</span>
+            <div className="flex-1 h-px bg-light-bg"></div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-3">{error}</p>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSignIn} className="space-y-4">
+            <input
+              name="email"
+              type="email"
+              placeholder="Email Address"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"
+            />
+
+            {/* Password */}
+            <div className="relative">
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 cursor-pointer text-text-secondary"
+              >
+                {showPassword ? (
+                  <AiOutlineEyeInvisible size={20} />
+                ) : (
+                  <AiOutlineEye size={20} />
+                )}
+              </span>
+            </div>
+
+            {/* Forgot Password */}
+            <div className="text-right">
+              <span className="text-accent cursor-pointer hover:underline">
+                Forgot password?
+              </span>
+            </div>
+
+            {/* Login Button */}
+            <motion.button
+              disabled={loading}
+              className="w-full py-2 bg-dark text-bg rounded-lg font-semibold disabled:opacity-60"
+            >
+              {loading ? (
+                <CgSpinner className="animate-spin mx-auto text-light-bg" />
+              ) : (
+                "Login"
+              )}
+            </motion.button>
+          </form>
+
+          {/* Footer */}
+          <p className="text-center text-text-secondary mt-6">
+            Don&apos;t have an account?{" "}
+            <Link
+              to={"/signUp"}
+              className="text-black cursor-pointer hover:underline"
+            >
+              Sign Up
+            </Link>
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default SignIn;
