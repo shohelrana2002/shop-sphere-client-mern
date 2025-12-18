@@ -1,26 +1,31 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FaGoogle } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link } from "react-router";
 import axios from "axios";
 import { serverURL } from "../App";
 import toast from "react-hot-toast";
 import { CgSpinner } from "react-icons/cg";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../Firebase/firebase.config";
+import { FaGoogle } from "react-icons/fa";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState(""); // new state for role
   const [loading, setLoading] = useState(false);
+  const [mobile, setMobile] = useState("");
   const roles = ["user", "owner", "deliveryBoy"];
+  const [error, setError] = useState("");
+  const provider = new GoogleAuthProvider();
   const handleRegister = async (e) => {
     e.preventDefault();
     // Handle registration logic here
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
-    const mobile = form.mobile.value;
+
     const password = form.password.value;
     const data = {
       fullName: name,
@@ -37,14 +42,46 @@ const SignUp = () => {
       });
       if (res.data?.user) {
         setLoading(false);
+        setError("");
         toast.success("Registered Successfully! Please Sign In.");
         // form.reset();
       }
     } catch (error) {
       setLoading(false);
-      console.log(error);
+      const errMsg = error.response?.data?.message || error.message;
+      setError(errMsg);
     }
   };
+  const handleSocialLogin = async () => {
+    if (!mobile) {
+      return toast.error("Please enter a mobile number first");
+    }
+    try {
+      // Google popup
+      const result = await signInWithPopup(auth, provider);
+      // Backend API call
+      const { data } = await axios.post(
+        `${serverURL}/api/auth/google-auth`,
+        {
+          fullName: result.user.displayName,
+          email: result.user.email,
+          mobile,
+        },
+        { withCredentials: true }
+      );
+
+      if (!data?.success) {
+        toast.error(data?.message || "This email is already in use");
+        // 👉 navigate("/"); or dashboard
+      }
+    } catch (error) {
+      const errMsg =
+        error.response?.data?.message || error.message || "Google login failed";
+      toast.error(errMsg);
+      setError(errMsg);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg px-4">
       <motion.div
@@ -82,9 +119,11 @@ const SignUp = () => {
 
           {/* Social Login */}
           <div className="space-y-3 mb-5">
-            <button className="w-full cursor-pointer flex items-center justify-center gap-2 border py-2 rounded-lg bg-green-200/50 text-dark hover:bg-green-200 hover:brightness-90 transition">
+            <button
+              onClick={handleSocialLogin}
+              className="w-full flex hover:bg-black/10 cursor-pointer items-center justify-center gap-2 border py-2 rounded-lg transition "
+            >
               <FaGoogle className="w-5 h-5" />
-              Continue with Google
             </button>
           </div>
 
@@ -94,24 +133,33 @@ const SignUp = () => {
             <span className="text-text-secondary text-sm">OR</span>
             <div className="flex-1 h-px bg-light-bg"></div>
           </div>
-
+          {error && (
+            <>
+              <p className="text-red-600 text-center">{error}</p>
+            </>
+          )}
           {/* Form */}
           <form onSubmit={handleRegister} className="space-y-4">
             <input
               type="text"
               name="name"
+              required
               placeholder="Full Name"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"
             />
             <input
               type="email"
               name="email"
+              required
               placeholder="Email Address"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"
             />
             <input
-              type="text"
+              type="number"
               name="mobile"
+              required
+              defaultValue={mobile}
+              onChange={(e) => setMobile(e.target.value)}
               placeholder="Mobile Number"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"
             />
@@ -120,6 +168,7 @@ const SignUp = () => {
             <div className="relative">
               <input
                 name="password"
+                required
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"

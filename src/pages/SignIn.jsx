@@ -1,13 +1,15 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FaGoogle, FaGithub } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link } from "react-router";
 import axios from "axios";
 import { serverURL } from "../App";
 import toast from "react-hot-toast";
 import { CgSpinner } from "react-icons/cg";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../Firebase/firebase.config";
+import { FaGoogle } from "react-icons/fa";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +58,27 @@ const SignIn = () => {
       toast.error(message);
     }
   };
-
+  const provider = new GoogleAuthProvider();
+  const handleSocialLogin = async () => {
+    try {
+      // Google popup
+      const result = await signInWithPopup(auth, provider);
+      // Backend API call
+      const { data } = await axios.post(
+        `${serverURL}/api/auth/google-auth`,
+        {
+          email: result.user.email,
+        },
+        { withCredentials: true }
+      );
+      toast.success("Login Successfully");
+    } catch (error) {
+      console.error("Google login error:", error);
+      const errMsg =
+        error.response?.data?.message || error.message || "Google login failed";
+      toast.error(errMsg);
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg px-4">
       <motion.div
@@ -89,14 +111,17 @@ const SignIn = () => {
             </p>
           </div>
 
-          {/* Social Login */}
           <div className="space-y-3 mb-5">
-            <button className="w-full cursor-pointer flex items-center justify-center gap-2 border py-2 rounded-lg  text-dark hover:bg-green-200 hover:brightness-90 transition">
+            <button
+              onClick={handleSocialLogin}
+              className={
+                "w-full hover:cursor-pointer hover:bg-black/20 flex items-center justify-center gap-2 border py-2 rounded-lg transition"
+              }
+            >
               <FaGoogle className="w-5 h-5" />
-              Continue with Google
+              {loading ? "Signing in..." : "Continue with Google"}
             </button>
           </div>
-
           {/* Divider */}
           <div className="flex items-center gap-2 my-4">
             <div className="flex-1 h-px bg-light-bg"></div>
@@ -114,6 +139,7 @@ const SignIn = () => {
             <input
               name="email"
               type="email"
+              required
               placeholder="Email Address"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"
             />
@@ -123,6 +149,7 @@ const SignIn = () => {
               <input
                 name="password"
                 type={showPassword ? "text" : "password"}
+                required
                 placeholder="Password"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-success focus:outline-none bg-bg text-dark"
               />
@@ -139,8 +166,8 @@ const SignIn = () => {
             </div>
 
             {/* Forgot Password */}
-            <Link to={"/forgot-password"} className="text-right">
-              <span className="text-black cursor-pointer hover:underline">
+            <Link to={"/forgot-password"} className="text-right ">
+              <span className="text-black  cursor-pointer hover:underline">
                 Forgot password?
               </span>
             </Link>
@@ -148,7 +175,7 @@ const SignIn = () => {
             {/* Login Button */}
             <motion.button
               disabled={loading}
-              className="w-full py-2 bg-dark text-bg rounded-lg font-semibold disabled:opacity-60"
+              className="w-full py-2 cursor-pointer bg-dark mt-3 text-bg rounded-lg font-semibold disabled:opacity-60"
             >
               {loading ? (
                 <CgSpinner className="animate-spin mx-auto text-light-bg" />
