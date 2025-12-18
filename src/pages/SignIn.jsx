@@ -139,11 +139,11 @@ const SignIn = () => {
             </div>
 
             {/* Forgot Password */}
-            <div className="text-right">
-              <span className="text-accent cursor-pointer hover:underline">
+            <Link to={"/forgot-password"} className="text-right">
+              <span className="text-black cursor-pointer hover:underline">
                 Forgot password?
               </span>
-            </div>
+            </Link>
 
             {/* Login Button */}
             <motion.button
