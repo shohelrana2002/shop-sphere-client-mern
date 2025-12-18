@@ -17,7 +17,6 @@ const SocialLogin = () => {
       const user = result.user;
 
       console.log("Google User:", user);
-
       toast.success("Logged in with Google successfully!");
       // 👉 backend API call / navigate
     } catch (error) {
