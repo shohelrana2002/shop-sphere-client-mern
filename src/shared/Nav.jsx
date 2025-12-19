@@ -6,15 +6,18 @@ import {
   FiLogOut,
   FiMapPin,
 } from "react-icons/fi";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { serverURL } from "../App";
 import { setUser } from "../redux/userSlice";
 import toast from "react-hot-toast";
+import { FaCartPlus, FaHourglassHalf } from "react-icons/fa";
 
 const Nav = () => {
+  const navigate = useNavigate();
   const { userData, city } = useSelector((state) => state.user);
+  const { myShopData } = useSelector((state) => state.owner);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -43,61 +46,92 @@ const Nav = () => {
       console.log(error);
     }
   };
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#fff9f6] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* LEFT → Logo */}
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1
+          onClick={() => navigate("/")}
+          className="text-2xl cursor-pointer  font-bold text-gray-800"
+        >
           Shop<span className="text-orange-500">Sphere</span>
         </h1>
-        {city && (
+        {city && userData?.role === "user" && (
           <span className="flex flex-col text-orange-500 items-center text-sm">
             <FiMapPin />
             {city}
           </span>
         )}
         {/* CENTER → Search (md+) */}
-        <div className="hidden md:flex flex-1 justify-center">
-          <div className="relative w-full max-w-lg">
-            <FiSearch className="absolute left-3 top-3 text-gray-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              type="text"
-              placeholder="Search products..."
-              className="w-full pl-10 pr-10 py-2 border rounded-full focus:ring-2 focus:ring-orange-400 focus:outline-none"
-            />
-            {search && (
-              <FiX
-                onClick={() => setSearch("")}
-                className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-red-500"
+        {userData?.role === "user" && (
+          <div className="hidden md:flex flex-1 justify-center">
+            <div className="relative w-full max-w-lg">
+              <FiSearch className="absolute left-3 top-3 text-gray-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                type="text"
+                placeholder="Search products..."
+                className="w-full pl-10 pr-10 py-2 border rounded-full focus:ring-2 focus:ring-orange-400 focus:outline-none"
               />
-            )}
+              {search && (
+                <FiX
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-red-500"
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* RIGHT */}
         <div className="flex items-center gap-4 relative" ref={dropdownRef}>
           {/* Mobile Search Icon */}
-          <button
-            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-            className="md:hidden text-gray-700"
-          >
-            {mobileSearchOpen ? <FiX size={22} /> : <FiSearch size={22} />}
-          </button>
+          {userData?.role === "user" && (
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="md:hidden text-gray-700"
+            >
+              {mobileSearchOpen ? <FiX size={22} /> : <FiSearch size={22} />}
+            </button>
+          )}
+          {/* owner nav */}
+          {userData?.role === "owner" && (
+            <>
+              {myShopData && (
+                <Link className=" text-gray-700 inline-flex items-center gap-0 md:gap-1 hover:text-orange-500 font-medium">
+                  <FaCartPlus size={20} />
+                  <span className="hidden md:block">Add Food</span>
+                </Link>
+              )}
+
+              <Link className="relative cursor-pointer inline-flex items-center hover:text-orange-600">
+                <FaHourglassHalf className="text-yellow-500 " size={22} />
+                <span className="hidden md:block">Order Pending</span>
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-1.5 rounded-full">
+                  2
+                </span>
+              </Link>
+            </>
+          )}
 
           {/* My Orders */}
-          <Link className="hidden md:block text-gray-700 hover:text-orange-500 font-medium">
-            My Orders
-          </Link>
+          {userData?.role === "user" && (
+            <>
+              <Link className="hidden md:block text-gray-700 hover:text-orange-500 font-medium">
+                My Orders
+              </Link>
 
-          {/* Cart */}
-          <Link className="relative cursor-pointer hover:text-orange-600">
-            <FiShoppingCart size={22} />
-            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-1.5 rounded-full">
-              2
-            </span>
-          </Link>
+              {/* Cart */}
+              <Link className="relative cursor-pointer hover:text-orange-600">
+                <FiShoppingCart size={22} />
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-1.5 rounded-full">
+                  2
+                </span>
+              </Link>
+            </>
+          )}
 
           {/* Profile */}
           <div className="relative">
@@ -112,18 +146,20 @@ const Nav = () => {
 
             {open && (
               <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl border overflow-hidden">
-                <button className="w-full text-left px-4 py-2 hover:bg-orange-200 transition">
+                <button className="w-full cursor-pointer text-left px-4 py-2 hover:bg-orange-200 transition">
                   👤 Profile
                 </button>
-                <button className="w-full md:hidden text-left px-4 py-2 hover:bg-orange-200 transition">
-                  🛒 My Orders
-                </button>
-                <button className="w-full text-left px-4 py-2 hover:bg-orange-200 transition">
+                {userData?.role === "user" && (
+                  <button className="w-full cursor-pointer md:hidden text-left px-4 py-2 hover:bg-orange-200 transition">
+                    🛒 My Orders
+                  </button>
+                )}
+                <button className="w-full cursor-pointer text-left px-4 py-2 hover:bg-orange-200 transition">
                   ⚙️ Settings
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center px-4 py-2 text-red-700 hover:bg-red-200 transition"
+                  className="w-full flex cursor-pointer items-center px-4 py-2 text-red-700 hover:bg-red-200 transition"
                 >
                   <FiLogOut className="mr-2" /> Logout
                 </button>
@@ -134,7 +170,7 @@ const Nav = () => {
       </div>
 
       {/* MOBILE SEARCH INPUT */}
-      {mobileSearchOpen && (
+      {userData?.role === "user" && mobileSearchOpen && (
         <div className="md:hidden px-4 pb-3">
           <div className="relative">
             <FiSearch className="absolute left-3 top-3 text-gray-400" />

@@ -13,7 +13,7 @@ const useGetCurrentUser = () => {
           withCredentials: true,
         });
         // console.log(result.data);
-        return dispatch(setUser(result.data));
+        return dispatch(setUser(result?.data));
       } catch (error) {
         console.log(error);
       }
