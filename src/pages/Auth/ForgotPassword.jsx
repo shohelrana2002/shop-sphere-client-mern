@@ -3,14 +3,13 @@ import { BsArrowLeftCircleFill } from "react-icons/bs";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useNavigate } from "react-router";
 import axios from "axios";
-import { serverURL } from "../App";
 import toast from "react-hot-toast";
+import { serverURL } from "../../App";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");

@@ -4,17 +4,20 @@ import { motion } from "framer-motion";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link } from "react-router";
 import axios from "axios";
-import { serverURL } from "../App";
 import toast from "react-hot-toast";
 import { CgSpinner } from "react-icons/cg";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../Firebase/firebase.config";
 import { FaGoogle } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/userSlice";
+import { serverURL } from "../../App";
+import { auth } from "../../Firebase/firebase.config";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const dispatch = useDispatch();
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError("");
@@ -39,6 +42,7 @@ const SignIn = () => {
       );
 
       if (res.status === 200) {
+        dispatch(setUser(res.data));
         setLoading(false);
         toast.success("Login Successful");
         form.reset();
@@ -71,6 +75,7 @@ const SignIn = () => {
         },
         { withCredentials: true }
       );
+      dispatch(setUser(data));
       toast.success("Login Successfully");
     } catch (error) {
       console.error("Google login error:", error);
