@@ -3,11 +3,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { FiArrowLeft, FiUpload } from "react-icons/fi";
 import { FaUtensils } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { serverURL } from "../../App";
 import { CgSpinner } from "react-icons/cg";
 import toast from "react-hot-toast";
+import { setMyShopData } from "../../redux/OwnerSlice";
 
 const CreateEditShop = () => {
   const [loading, setLoading] = useState(false);
@@ -35,9 +36,11 @@ const CreateEditShop = () => {
     const file = e.target.files[0];
     if (file) {
       setBackendImage(file);
-      setPreview(URL.createObjectURL(file) || myShopData?.image || "");
+      setPreview(URL.createObjectURL(file) || myShopData?.image);
     }
   };
+
+  const dispatch = useDispatch();
   const onSubmit = async (data) => {
     setLoading(true);
     try {
@@ -62,7 +65,8 @@ const CreateEditShop = () => {
 
       if (result?.status === 201 || result?.status === 200) {
         toast.success("Shop Created or Updated Success");
-        navigate("/");
+        dispatch(setMyShopData(result?.data));
+        navigate("/", { replace: true });
       }
     } catch (error) {
       setLoading(false);
@@ -207,6 +211,16 @@ const CreateEditShop = () => {
                 <p className="text-sm text-gray-600 mb-1">Preview</p>
                 <img
                   src={preview}
+                  alt="Preview"
+                  className="h-44 w-full object-cover rounded-xl border shadow-sm"
+                />
+              </div>
+            )}
+            {myShopData?.image && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-600 mb-1">Old Image</p>
+                <img
+                  src={myShopData?.image}
                   alt="Preview"
                   className="h-44 w-full object-cover rounded-xl border shadow-sm"
                 />

@@ -9,6 +9,8 @@ import ForgotPassword from "./pages/Auth/ForgotPassword";
 import useGetCity from "./hooks/useGetCity";
 import useGetMyShop from "./hooks/useGetMyShop";
 import CreateEditShop from "./pages/shop/CreateEditShop";
+import AddItem from "./pages/AddFoodItem/AddItem";
+import EditFoodItem from "./pages/AddFoodItem/EditFoodItem";
 export const serverURL = "http://localhost:3000";
 function App() {
   useGetCurrentUser();
@@ -46,6 +48,22 @@ function App() {
         element={
           userData?.role === "owner" ? (
             <CreateEditShop />
+          ) : (
+            <Navigate to={"/signIn"} />
+          )
+        }
+      />
+      <Route
+        path="/add-food-item"
+        element={
+          userData?.role === "owner" ? <AddItem /> : <Navigate to={"/signIn"} />
+        }
+      />
+      <Route
+        path="/edit-food-item/:itemId"
+        element={
+          userData?.role === "owner" ? (
+            <EditFoodItem />
           ) : (
             <Navigate to={"/signIn"} />
           )

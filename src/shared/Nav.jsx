@@ -100,7 +100,10 @@ const Nav = () => {
           {userData?.role === "owner" && (
             <>
               {myShopData && (
-                <Link className=" text-gray-700 inline-flex items-center gap-0 md:gap-1 hover:text-orange-500 font-medium">
+                <Link
+                  to={"/add-food-item"}
+                  className=" text-gray-700 inline-flex items-center gap-0 md:gap-1 hover:text-orange-500 font-medium"
+                >
                   <FaCartPlus size={20} />
                   <span className="hidden md:block">Add Food</span>
                 </Link>
