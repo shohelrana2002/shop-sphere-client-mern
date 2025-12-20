@@ -2,24 +2,30 @@ import axios from "axios";
 import { useEffect } from "react";
 import { serverURL } from "../App";
 import { useDispatch } from "react-redux";
-import { setUser } from "../redux/userSlice";
+import { setUser, setUserLoading } from "../redux/userSlice";
 
 const useGetCurrentUser = () => {
   const dispatch = useDispatch();
+
   useEffect(() => {
     const fetchUser = async () => {
+      dispatch(setUserLoading(true));
       try {
-        const result = await axios.get(`${serverURL}/api/user/current-user`, {
+        const res = await axios.get(`${serverURL}/api/user/current-user`, {
           withCredentials: true,
         });
-        // console.log(result.data);
-        return dispatch(setUser(result?.data));
+
+        dispatch(setUser(res.data));
       } catch (error) {
         console.log(error);
+        dispatch(setUser(null)); // not logged in
+      } finally {
+        dispatch(setUserLoading(false));
       }
     };
+
     fetchUser();
-  }, []);
+  }, [dispatch]);
 };
 
 export default useGetCurrentUser;

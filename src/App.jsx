@@ -7,12 +7,21 @@ import SignUp from "./pages/Auth/SignUp";
 import SignIn from "./pages/Auth/SignIn";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import useGetCity from "./hooks/useGetCity";
+import useGetMyShop from "./hooks/useGetMyShop";
 import CreateEditShop from "./pages/shop/CreateEditShop";
 export const serverURL = "http://localhost:3000";
 function App() {
   useGetCurrentUser();
+  useGetMyShop();
   useGetCity();
-  const { userData } = useSelector((state) => state.user);
+  const { userData, loading } = useSelector((state) => state.user);
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-orange-500"></span>
+      </div>
+    );
+  }
 
   return (
     <Routes>

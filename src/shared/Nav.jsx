@@ -16,7 +16,7 @@ import { FaCartPlus, FaHourglassHalf } from "react-icons/fa";
 
 const Nav = () => {
   const navigate = useNavigate();
-  const { userData, city } = useSelector((state) => state.user);
+  const { userData, currentCity } = useSelector((state) => state.user);
   const { myShopData } = useSelector((state) => state.owner);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -57,10 +57,10 @@ const Nav = () => {
         >
           Shop<span className="text-orange-500">Sphere</span>
         </h1>
-        {city && userData?.role === "user" && (
+        {currentCity && userData?.role === "user" && (
           <span className="flex flex-col text-orange-500 items-center text-sm">
             <FiMapPin />
-            {city}
+            {currentCity}
           </span>
         )}
         {/* CENTER → Search (md+) */}

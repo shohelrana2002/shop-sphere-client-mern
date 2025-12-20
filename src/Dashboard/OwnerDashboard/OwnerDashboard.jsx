@@ -1,18 +1,23 @@
 import React from "react";
 import Nav from "../../shared/Nav";
-import useGetMyShop from "../../hooks/useGetMyShop";
 import { useSelector } from "react-redux";
 import { FaUtensils } from "react-icons/fa";
 import { useNavigate } from "react-router";
 
 const OwnerDashboard = () => {
-  useGetMyShop();
-  const { myShopData } = useSelector((state) => state.owner);
+  const { myShopData, loadingOwner } = useSelector((state) => state.owner);
   const navigate = useNavigate();
+
+  if (loadingOwner)
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-orange-500"></span>
+      </div>
+    );
+
   return (
     <div className=" w-full bg-orange-50">
       <Nav />
-
       {!myShopData && (
         <div className="flex justify-center items-center px-4 pt-28 pb-10">
           <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border border-orange-100 p-8 text-center hover:shadow-xl transition-all duration-300">
