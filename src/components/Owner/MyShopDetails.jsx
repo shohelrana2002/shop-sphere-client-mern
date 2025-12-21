@@ -7,16 +7,8 @@ import OwnerItemsCard from "./OwnerItemsCard";
 
 const MyShopDetails = () => {
   const { myShopData } = useSelector((state) => state.owner);
-  // const { loadingItem } = useSelector((state) => state.item);
   const navigate = useNavigate();
 
-  // if (loadingItem) {
-  //   return (
-  //     <div className="h-screen flex items-center justify-center">
-  //       <span className="loading loading-spinner loading-lg text-orange-500"></span>
-  //     </div>
-  //   );
-  // }
   if (!myShopData) {
     return (
       <div className="min-h-screen flex justify-center items-center text-gray-500">
@@ -84,7 +76,7 @@ const MyShopDetails = () => {
               <OwnerItemsCard key={index} data={item} />
             ))}
 
-          {!myShopData.items.length > 0 && (
+          {!myShopData?.items?.length > 0 && (
             <div className="flex justify-center">
               <div className="w-full max-w-md bg-linear-to-br from-orange-50 to-white rounded-3xl border border-orange-200 p-8 text-center shadow-lg">
                 <div className="mx-auto mb-5 w-16 h-16 flex items-center justify-center rounded-full bg-orange-100 text-orange-500">
