@@ -24,9 +24,8 @@ const OwnerItemsCard = ({ data }) => {
 
     if (!confirm.isConfirmed) return;
 
-    // 🔥 Optimistic UI
+    //  Optimistic UI
     const previousItems = myShopData.items;
-
     const updatedItems = previousItems.filter((item) => item._id !== itemId);
 
     dispatch(

@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Firefox,IE/Edge old Version */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+/* chrome ,safari ,opera */
+::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none;
+}
+
 @theme {
   /* Primary / Dark */
   --color-dark: #1d1d1b;
