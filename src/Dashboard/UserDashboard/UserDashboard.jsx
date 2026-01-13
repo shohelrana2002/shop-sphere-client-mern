@@ -3,114 +3,221 @@ import Nav from "../../shared/Nav";
 import { categories } from "../../category";
 import CategoryCard from "../../components/User/CategoryCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSelector } from "react-redux";
+import FoodCard from "../../components/User/FoodCard";
 
 const UserDashboard = () => {
-  /*  Scrollbar Add */
-  const sliderRef = useRef(null);
-  const intervalRef = useRef(null);
+  const { currentCity, shopInMyCity, itemsInMyCity } = useSelector(
+    (state) => state?.user
+  );
 
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
+  // --- CATEGORY SLIDER ---
+  const catSliderRef = useRef(null);
+  const catIntervalRef = useRef(null);
+  const [catCanLeft, setCatCanLeft] = useState(false);
+  const [catCanRight, setCatCanRight] = useState(false);
 
-  // check scroll position
-  const checkScroll = () => {
-    const slider = sliderRef.current;
+  const checkCatScroll = () => {
+    const slider = catSliderRef.current;
     if (!slider) return;
+    setCatCanLeft(slider.scrollLeft > 0);
+    setCatCanRight(slider.scrollLeft + slider.clientWidth < slider.scrollWidth);
+  };
 
-    setCanScrollLeft(slider.scrollLeft > 0);
-    setCanScrollRight(
+  const scrollCatLeft = () => {
+    catSliderRef.current.scrollBy({ left: -260, behavior: "smooth" });
+  };
+  const scrollCatRight = () => {
+    catSliderRef.current.scrollBy({ left: 260, behavior: "smooth" });
+  };
+
+  const startCatAutoScroll = () => {
+    stopCatAutoScroll();
+    catIntervalRef.current = setInterval(() => {
+      const slider = catSliderRef.current;
+      if (!slider) return;
+      if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth) {
+        slider.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        slider.scrollBy({ left: 260, behavior: "smooth" });
+      }
+    }, 3000);
+  };
+  const stopCatAutoScroll = () => {
+    if (catIntervalRef.current) clearInterval(catIntervalRef.current);
+  };
+
+  // --- SHOP SLIDER ---
+  const shopSliderRef = useRef(null);
+  const shopIntervalRef = useRef(null);
+  const [shopCanLeft, setShopCanLeft] = useState(false);
+  const [shopCanRight, setShopCanRight] = useState(false);
+
+  const checkShopScroll = () => {
+    const slider = shopSliderRef.current;
+    if (!slider) return;
+    setShopCanLeft(slider.scrollLeft > 0);
+    setShopCanRight(
       slider.scrollLeft + slider.clientWidth < slider.scrollWidth
     );
   };
 
-  // auto scroll
-  const startAutoScroll = () => {
-    stopAutoScroll();
-    intervalRef.current = setInterval(() => {
-      if (!sliderRef.current) return;
+  const scrollShopLeft = () => {
+    shopSliderRef.current.scrollBy({ left: -260, behavior: "smooth" });
+  };
+  const scrollShopRight = () => {
+    shopSliderRef.current.scrollBy({ left: 260, behavior: "smooth" });
+  };
 
-      if (
-        sliderRef.current.scrollLeft + sliderRef.current.clientWidth >=
-        sliderRef.current.scrollWidth
-      ) {
-        sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
+  const startShopAutoScroll = () => {
+    stopShopAutoScroll();
+    shopIntervalRef.current = setInterval(() => {
+      const slider = shopSliderRef.current;
+      if (!slider) return;
+      if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth) {
+        slider.scrollTo({ left: 0, behavior: "smooth" });
       } else {
-        sliderRef.current.scrollBy({ left: 260, behavior: "smooth" });
+        slider.scrollBy({ left: 260, behavior: "smooth" });
       }
     }, 3000);
   };
-
-  const stopAutoScroll = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
+  const stopShopAutoScroll = () => {
+    if (shopIntervalRef.current) clearInterval(shopIntervalRef.current);
   };
 
   useEffect(() => {
-    checkScroll();
-    startAutoScroll();
-    return () => stopAutoScroll();
+    checkCatScroll();
+    checkShopScroll();
+    startCatAutoScroll();
+    startShopAutoScroll();
+    return () => {
+      stopCatAutoScroll();
+      stopShopAutoScroll();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [categories]);
 
-  const scrollLeft = () => {
-    sliderRef.current.scrollBy({ left: -260, behavior: "smooth" });
-  };
-
-  const scrollRight = () => {
-    sliderRef.current.scrollBy({ left: 260, behavior: "smooth" });
-  };
   return (
-    //className="w-full min-h-screen flex flex-col overflow-y-auto  gap-5  items-center bg-linear-to-b from-green-100 to-green-200/20"
     <>
       <Nav />
-      <div className="w-full max-w-6xl  flex flex-col  gap-5  items-start p-3">
+
+      {/* ------------------ CATEGORY SLIDER ------------------ */}
+      <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-3">
         <h1 className="text-3xl md:text-2xl text-gray-800">
-          Inspiration Your Fast Order{" "}
+          Inspiration Your Fast Order
         </h1>
-        {/* scrollbar */}
+
         <div className="relative w-full">
-          {/* Left Button */}
+          {/* Left */}
           <button
-            onClick={scrollLeft}
-            disabled={!canScrollLeft}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 z-10
-        hidden md:flex rounded-full p-2 border transition
-        ${
-          canScrollLeft
-            ? "bg-white cursor-pointer shadow-md hover:shadow-lg"
-            : "bg-gray-100 opacity-40 cursor-not-allowed"
-        }`}
+            onClick={scrollCatLeft}
+            disabled={!catCanLeft}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 hidden md:flex rounded-full p-2 border transition
+              ${
+                catCanLeft
+                  ? "bg-white cursor-pointer shadow-md hover:shadow-lg"
+                  : "bg-gray-100 opacity-40 cursor-not-allowed"
+              }`}
           >
             <ChevronLeft className="w-5 h-5 text-gray-700" />
           </button>
 
           {/* Slider */}
           <div
-            ref={sliderRef}
-            onScroll={checkScroll}
-            onMouseEnter={stopAutoScroll}
-            onMouseLeave={startAutoScroll}
-            className="flex gap-4 overflow-x-auto scroll-smooth
-        scrollbar-hide pb-3 px-3 md:px-12"
+            ref={catSliderRef}
+            onScroll={checkCatScroll}
+            onMouseEnter={stopCatAutoScroll}
+            onMouseLeave={startCatAutoScroll}
+            className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide pb-3 px-3 md:px-12"
           >
-            {categories.map((category, i) => (
-              <CategoryCard key={i} data={category} />
-            ))}
+            {categories?.length > 0 &&
+              categories.map((category, i) => (
+                <CategoryCard
+                  key={i}
+                  name={category.category}
+                  image={category.image}
+                />
+              ))}
           </div>
 
-          {/* Right Button */}
+          {/* Right */}
           <button
-            onClick={scrollRight}
-            disabled={!canScrollRight}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 z-10
-        hidden md:flex rounded-full p-2 border transition
-        ${
-          canScrollRight
-            ? "bg-white cursor-pointer shadow-md hover:shadow-lg"
-            : "bg-gray-100 opacity-40 cursor-not-allowed"
-        }`}
+            onClick={scrollCatRight}
+            disabled={!catCanRight}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 hidden md:flex rounded-full p-2 border transition
+              ${
+                catCanRight
+                  ? "bg-white cursor-pointer shadow-md hover:shadow-lg"
+                  : "bg-gray-100 opacity-40 cursor-not-allowed"
+              }`}
           >
             <ChevronRight className="w-5 h-5 text-gray-700" />
           </button>
+        </div>
+      </div>
+
+      {/* ------------------ SHOP SLIDER ------------------ */}
+      <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-3 mt-8">
+        <h1 className="text-3xl md:text-2xl text-gray-800">
+          Best Shop in {currentCity}
+        </h1>
+
+        <div className="relative w-full">
+          {/* Left */}
+          <button
+            onClick={scrollShopLeft}
+            disabled={!shopCanLeft}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 hidden md:flex rounded-full p-2 border transition
+              ${
+                shopCanLeft
+                  ? "bg-white cursor-pointer shadow-md hover:shadow-lg"
+                  : "bg-gray-100 opacity-40 cursor-not-allowed"
+              }`}
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700" />
+          </button>
+
+          {/* Slider */}
+          <div
+            ref={shopSliderRef}
+            onScroll={checkShopScroll}
+            onMouseEnter={stopShopAutoScroll}
+            onMouseLeave={startShopAutoScroll}
+            className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide pb-3 px-3 md:px-12"
+          >
+            {shopInMyCity?.length > 0 &&
+              shopInMyCity.map((category, i) => (
+                <CategoryCard
+                  key={i}
+                  name={category.name}
+                  image={category.image}
+                />
+              ))}
+          </div>
+
+          {/* Right */}
+          <button
+            onClick={scrollShopRight}
+            disabled={!shopCanRight}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 hidden md:flex rounded-full p-2 border transition
+              ${
+                shopCanRight
+                  ? "bg-white cursor-pointer shadow-md hover:shadow-lg"
+                  : "bg-gray-100 opacity-40 cursor-not-allowed"
+              }`}
+          >
+            <ChevronRight className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+      </div>
+      {/* ------------------ Items ------------------ */}
+      <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-3">
+        <h2 className="text-3xl md:text-2xl text-gray-800">
+          Suggested Food Items
+        </h2>
+        <div className="w-full h-auto flex flex-wrap gap-7 justify-center">
+          {itemsInMyCity?.length > 0 &&
+            itemsInMyCity?.map((item, i) => <FoodCard key={i} data={item} />)}
         </div>
       </div>
     </>

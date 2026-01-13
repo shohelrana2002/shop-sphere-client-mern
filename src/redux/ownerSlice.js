@@ -4,7 +4,7 @@ const ownerSlice = createSlice({
   name: "owner",
   initialState: {
     myShopData: null,
-    loadingOwner: true,
+    loadingOwner: false,
   },
   reducers: {
     setMyShopData: (state, action) => {

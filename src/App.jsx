@@ -7,15 +7,19 @@ import SignUp from "./pages/Auth/SignUp";
 import SignIn from "./pages/Auth/SignIn";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import useGetCity from "./hooks/useGetCity";
-import useGetMyShop from "./hooks/useGetMyShop";
 import CreateEditShop from "./pages/shop/CreateEditShop";
 import AddItem from "./pages/AddFoodItem/AddItem";
 import EditFoodItem from "./pages/AddFoodItem/EditFoodItem";
+import useGetShopByCity from "./hooks/useGetShopByCity";
+import useGetItemsByCity from "./hooks/useGetItemsByCity";
+import useGetMyShop from "./hooks/useGetMyShop";
 export const serverURL = "http://localhost:3000";
 function App() {
   useGetCurrentUser();
   useGetMyShop();
   useGetCity();
+  useGetShopByCity();
+  useGetItemsByCity();
   const { userData, loading } = useSelector((state) => state.user);
   if (loading) {
     return (
