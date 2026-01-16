@@ -31,6 +31,7 @@ function App() {
 
   return (
     <Routes>
+      //signup
       <Route
         path="/signup"
         element={!userData ? <SignUp /> : <Navigate to={"/"} />}
