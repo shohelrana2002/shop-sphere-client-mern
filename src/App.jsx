@@ -15,12 +15,14 @@ import useGetItemsByCity from "./hooks/useGetItemsByCity";
 import useGetMyShop from "./hooks/useGetMyShop";
 export const serverURL = "http://localhost:3000";
 function App() {
+  const { userData, loading } = useSelector((state) => state.user);
+
   useGetCurrentUser();
   useGetMyShop();
   useGetCity();
   useGetShopByCity();
   useGetItemsByCity();
-  const { userData, loading } = useSelector((state) => state.user);
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -33,7 +35,7 @@ function App() {
     <Routes>
       //signup
       <Route
-        path="/signup"
+        path="/signUp"
         element={!userData ? <SignUp /> : <Navigate to={"/"} />}
       />
       <Route

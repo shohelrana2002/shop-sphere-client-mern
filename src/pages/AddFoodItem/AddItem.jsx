@@ -78,7 +78,7 @@ const AddItem = () => {
       const result = await axios.post(
         `${serverURL}/api/item/add-item`,
         formData,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(result?.data);
       if (result.status === 201 || result.status === 200) {
@@ -123,7 +123,7 @@ const AddItem = () => {
             <input
               {...register("name", { required: "Food name is required" })}
               className="input"
-              placeholder="Chicken Biryani"
+              placeholder="Food Item Name"
             />
             {errors.name && <p className="error">{errors.name.message}</p>}
           </div>
@@ -135,7 +135,7 @@ const AddItem = () => {
               {...register("category", { required: "Category is required" })}
               className="input"
             >
-              <option value="">Select category</option>
+              <option>Select category</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
@@ -155,7 +155,7 @@ const AddItem = () => {
                 type="number"
                 {...register("price", { required: "Price is required" })}
                 className="input"
-                placeholder="250"
+                placeholder="Enter Price"
               />
               {errors.price && <p className="error">{errors.price.message}</p>}
             </div>
@@ -166,7 +166,7 @@ const AddItem = () => {
                 type="number"
                 {...register("stock", { required: "Stock is required" })}
                 className="input"
-                placeholder="10"
+                placeholder="Stock"
               />
               {errors.stock && <p className="error">{errors.stock.message}</p>}
             </div>
@@ -200,7 +200,8 @@ const AddItem = () => {
           {/* Submit */}
           <button
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold shadow-lg transition"
+            className={`w-full bg-orange-500 text-white py-3 rounded-xl font-semibold shadow-lg transition 
+    ${loading ? "cursor-not-allowed bg-orange-400" : "hover:bg-orange-600 cursor-pointer"}`}
           >
             {loading ? (
               <CgSpinner size={24} className="mx-auto animate-spin" />

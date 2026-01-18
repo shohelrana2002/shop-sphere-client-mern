@@ -38,45 +38,50 @@ const categories = [
   "Others",
 ];
 
-const EditFoodItem = () => {
+const FoodItemForm = () => {
   const { itemId } = useParams();
-  const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState(null);
-  const [backendImage, setBackendImage] = useState(null);
-  const [loadingData, setLoadingData] = useState(true);
-
-  const { myShopData } = useSelector((state) => state.owner);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { myShopData } = useSelector((state) => state.owner);
+
+  const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(!!itemId);
+  const [preview, setPreview] = useState(null);
+  const [backendImage, setBackendImage] = useState(null);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
     reset,
+    formState: { errors },
   } = useForm();
 
+  // Prefill data if Edit mode
   useEffect(() => {
-    const fetchSingleData = async () => {
+    if (!itemId) return;
+
+    const fetchItem = async () => {
       try {
         const { data } = await axios.get(
-          `${serverURL}/api/item/get-item/${itemId}`
+          `${serverURL}/api/item/get-item/${itemId}`,
+          { withCredentials: true },
         );
+        // Default Value
         reset({
-          // set default values
           name: data.name,
           category: data.category,
           price: data.price,
           stock: data.stock,
         });
-        setPreview(data.image); // show current image
-        setLoadingData(false);
-      } catch (error) {
-        console.log(error);
+        setPreview(data.image); // Default image preview
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load item data");
+      } finally {
         setLoadingData(false);
       }
     };
-    fetchSingleData();
+    fetchItem();
   }, [itemId, reset]);
 
   const handleImagePreview = (e) => {
@@ -88,6 +93,8 @@ const EditFoodItem = () => {
   };
 
   const onSubmit = async (formData) => {
+    if (!myShopData?._id) return toast.error("Shop data not available");
+
     setLoading(true);
     try {
       const payload = new FormData();
@@ -95,28 +102,33 @@ const EditFoodItem = () => {
       payload.append("category", formData.category);
       payload.append("price", formData.price);
       payload.append("stock", formData.stock);
-      payload.append("shop", myShopData?._id);
-
+      payload.append("shop", myShopData._id);
       if (backendImage) payload.append("image", backendImage);
 
-      const result = await axios.put(
-        `${serverURL}/api/item/edit-item/${itemId}`,
-        payload,
-        {
+      let result;
+      if (itemId) {
+        result = await axios.put(
+          `${serverURL}/api/item/edit-item/${itemId}`,
+          payload,
+          { withCredentials: true },
+        );
+      } else {
+        result = await axios.post(`${serverURL}/api/item/add-item`, payload, {
           withCredentials: true,
-        }
-      );
+        });
+      }
 
       if (result.status === 200 || result.status === 201) {
-        toast.success("Food item updated successfully 🍽️");
+        toast.success(itemId ? "Food item updated 🍽️" : "Food item added 🍽️");
         const shopRes = await axios.get(`${serverURL}/api/shop/get-myShop`, {
           withCredentials: true,
         });
-        dispatch(setMyShopData(shopRes?.data));
+        dispatch(setMyShopData(shopRes.data));
         navigate("/", { replace: true });
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -125,7 +137,7 @@ const EditFoodItem = () => {
   if (loadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center text-orange-500">
-        Loading item...
+        <CgSpinner className="animate-spin mr-2" /> Loading item...
       </div>
     );
   }
@@ -133,44 +145,51 @@ const EditFoodItem = () => {
   return (
     <div className="min-h-screen bg-orange-50 flex justify-center py-10 px-4">
       <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-6 sm:p-8">
-        {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-orange-500 mb-4"
+          className="flex items-center gap-2 text-gray-600 hover:text-orange-500 mb-6"
         >
           <FiArrowLeft /> Back
         </button>
 
-        {/* Header */}
         <div className="text-center mb-6">
           <div className="mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-orange-100 text-orange-500 mb-3">
             <FaUtensils size={30} />
           </div>
-          <h2 className="text-3xl font-bold text-gray-800">Update Food Item</h2>
+          <h2 className="text-3xl font-bold text-gray-800">
+            {itemId ? "Edit Food Item" : "Add New Food Item"}
+          </h2>
           <p className="text-gray-500 text-sm">
-            Edit details of your food item
+            {itemId
+              ? "Default values shown. Edit if you want."
+              : "Fill in the details to add a new food item"}
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Name */}
           <div>
-            <label className="label">Food Name</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Food Name
+            </label>
             <input
               {...register("name", { required: "Food name is required" })}
-              className="input"
-              placeholder="Chicken Biryani"
+              className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-300"
+              placeholder="Enter food name"
             />
-            {errors.name && <p className="error">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Category */}
           <div>
-            <label className="label">Category</label>
+            <label className="block text-gray-700 font-medium mb-1">
+              Category
+            </label>
             <select
               {...register("category", { required: "Category is required" })}
-              className="input"
+              className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-300"
             >
               <option value="">Select category</option>
               {categories.map((cat) => (
@@ -180,39 +199,53 @@ const EditFoodItem = () => {
               ))}
             </select>
             {errors.category && (
-              <p className="error">{errors.category.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.category.message}
+              </p>
             )}
           </div>
 
-          {/* Price + Stock */}
+          {/* Price & Stock */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="label">Price (৳)</label>
+              <label className="block text-gray-700 font-medium mb-1">
+                Price (৳)
+              </label>
               <input
                 type="number"
                 {...register("price", { required: "Price is required" })}
-                className="input"
-                placeholder="250"
+                className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-300"
               />
-              {errors.price && <p className="error">{errors.price.message}</p>}
+              {errors.price && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.price.message}
+                </p>
+              )}
             </div>
             <div>
-              <label className="label">Stock</label>
+              <label className="block text-gray-700 font-medium mb-1">
+                Stock
+              </label>
               <input
                 type="number"
                 {...register("stock", { required: "Stock is required" })}
-                className="input"
-                placeholder="10"
+                className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-300"
               />
-              {errors.stock && <p className="error">{errors.stock.message}</p>}
+              {errors.stock && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.stock.message}
+                </p>
+              )}
             </div>
           </div>
 
           {/* Image */}
           <div>
-            <label className="label">Food Image</label>
-            <label className="upload-box">
-              <FiUpload className="text-3xl text-orange-500" />
+            <label className="block text-gray-700 font-medium mb-1">
+              Food Image
+            </label>
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-orange-300 rounded-xl p-6 cursor-pointer hover:bg-orange-50 transition">
+              <FiUpload className="text-3xl text-orange-500 mb-1" />
               <span className="text-sm text-gray-500">Upload food image</span>
               <input
                 type="file"
@@ -234,30 +267,20 @@ const EditFoodItem = () => {
           {/* Submit */}
           <button
             disabled={loading}
-            className="w-full cursor-pointer bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold shadow-lg transition"
+            className="w-full py-3 rounded-xl font-semibold text-white bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 disabled:cursor-not-allowed shadow-lg transition"
           >
             {loading ? (
               <CgSpinner size={24} className="mx-auto animate-spin" />
-            ) : (
+            ) : itemId ? (
               "Update Item"
+            ) : (
+              "Add Item"
             )}
           </button>
         </form>
-
-        {/* Tailwind helpers */}
-        <style>
-          {`
-          .label { font-size:0.875rem; font-weight:500; color:#374151; margin-bottom:0.25rem; display:block }
-          .input { width:100%; padding:0.65rem 1rem; border-radius:0.75rem; border:1px solid #d1d5db; outline:none }
-          .input:focus { border-color:#fb923c; box-shadow:0 0 0 2px #fed7aa }
-          .error { color:#ef4444; font-size:0.8rem; margin-top:0.25rem }
-          .upload-box { display:flex; flex-direction:column; align-items:center; gap:0.5rem; border:2px dashed #fdba74; padding:1.5rem; border-radius:1rem; cursor:pointer }
-          .upload-box:hover { background:#fff7ed }
-        `}
-        </style>
       </div>
     </div>
   );
 };
 
-export default EditFoodItem;
+export default FoodItemForm;

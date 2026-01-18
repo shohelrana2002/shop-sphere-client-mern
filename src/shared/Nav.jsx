@@ -77,7 +77,7 @@ const Nav = () => {
               />
               {search && (
                 <FiX
-                  onClick={() => setSearch("")}
+                  onClick={() => setSearch(search.slice(0, -1))}
                   className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-red-500"
                 />
               )}

@@ -38,7 +38,7 @@ const SignIn = () => {
       const res = await axios.post(
         `${serverURL}/api/auth/signin`,
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (res.status === 200) {
@@ -46,7 +46,8 @@ const SignIn = () => {
         setLoading(false);
         toast.success("Login Successful");
         form.reset();
-        // navigate("/dashboard"); // future use
+        // user data set na hor jon_o  reload
+        window.location.reload();
       }
     } catch (err) {
       setLoading(false);
@@ -73,7 +74,7 @@ const SignIn = () => {
         {
           email: result.user.email,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch(setUser(data));
       toast.success("Login Successfully");
