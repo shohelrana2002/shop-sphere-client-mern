@@ -16,7 +16,9 @@ import { FaCartPlus, FaHourglassHalf } from "react-icons/fa";
 
 const Nav = () => {
   const navigate = useNavigate();
-  const { userData, currentCity } = useSelector((state) => state.user);
+  const { userData, currentCity, cartItems } = useSelector(
+    (state) => state.user,
+  );
   const { myShopData } = useSelector((state) => state.owner);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -127,10 +129,13 @@ const Nav = () => {
               </Link>
 
               {/* Cart */}
-              <Link className="relative cursor-pointer hover:text-orange-600">
+              <Link
+                to={"/cart"}
+                className="relative cursor-pointer hover:text-orange-600"
+              >
                 <FiShoppingCart size={22} />
                 <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-1.5 rounded-full">
-                  2
+                  {cartItems?.length}
                 </span>
               </Link>
             </>

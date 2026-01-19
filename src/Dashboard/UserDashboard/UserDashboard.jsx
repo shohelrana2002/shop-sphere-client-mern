@@ -8,7 +8,7 @@ import FoodCard from "../../components/User/FoodCard";
 
 const UserDashboard = () => {
   const { currentCity, shopInMyCity, itemsInMyCity } = useSelector(
-    (state) => state?.user
+    (state) => state?.user,
   );
 
   // --- CATEGORY SLIDER ---
@@ -58,7 +58,7 @@ const UserDashboard = () => {
     if (!slider) return;
     setShopCanLeft(slider.scrollLeft > 0);
     setShopCanRight(
-      slider.scrollLeft + slider.clientWidth < slider.scrollWidth
+      slider.scrollLeft + slider.clientWidth < slider.scrollWidth,
     );
   };
 

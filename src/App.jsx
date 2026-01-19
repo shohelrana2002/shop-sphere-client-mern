@@ -13,6 +13,7 @@ import EditFoodItem from "./pages/AddFoodItem/EditFoodItem";
 import useGetShopByCity from "./hooks/useGetShopByCity";
 import useGetItemsByCity from "./hooks/useGetItemsByCity";
 import useGetMyShop from "./hooks/useGetMyShop";
+import CartPage from "./components/User/CartPage";
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
@@ -74,6 +75,12 @@ function App() {
           ) : (
             <Navigate to={"/signIn"} />
           )
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          userData?.role === "user" ? <CartPage /> : <Navigate to={"/signIn"} />
         }
       />
     </Routes>

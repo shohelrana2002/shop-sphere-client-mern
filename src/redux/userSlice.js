@@ -10,6 +10,7 @@ const userSlice = createSlice({
     currentAddress: null,
     shopInMyCity: null,
     itemsInMyCity: null,
+    cartItems: [],
   },
   reducers: {
     setUser: (state, action) => {
@@ -34,6 +35,19 @@ const userSlice = createSlice({
     setItemsInMyCity: (state, action) => {
       state.itemsInMyCity = action.payload;
     },
+    addToCard: (state, action) => {
+      const cartItem = action.payload;
+      const existingItem = state.cartItems.find((i) => i.id === cartItem.id);
+      if (existingItem) {
+        existingItem.quantity += cartItem.quantity;
+      } else {
+        state.cartItems.push(cartItem);
+      }
+    },
+    removeFromCart: (state, action) => {
+      const id = action.payload;
+      state.cartItems = state.cartItems.filter((item) => item.id !== id);
+    },
   },
 });
 
@@ -45,5 +59,7 @@ export const {
   setCurrentAddress,
   setShopsInMyCity,
   setItemsInMyCity,
+  addToCard,
+  removeFromCart,
 } = userSlice.actions;
 export default userSlice.reducer;
