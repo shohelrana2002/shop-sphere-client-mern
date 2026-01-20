@@ -6,6 +6,7 @@ import {
   setCurrentCity,
   setCurrentState,
 } from "../redux/userSlice";
+import { setAddress, setLocation } from "../redux/mapSlice";
 
 const useGetCity = () => {
   const dispatch = useDispatch();
@@ -27,7 +28,7 @@ const useGetCity = () => {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-
+          dispatch(setLocation({ lat: latitude, lon: longitude }));
           const { data } = await axios.get(
             `https://api.geoapify.com/v1/geocode/reverse`,
             {
@@ -37,7 +38,7 @@ const useGetCity = () => {
                 format: "json",
                 apiKey,
               },
-            }
+            },
           );
 
           const city = data?.results?.[0]?.city;
@@ -55,13 +56,14 @@ const useGetCity = () => {
           if (address) {
             dispatch(setCurrentAddress(address));
           }
+          dispatch(setAddress(address));
         } catch (error) {
           console.error(" Failed to fetch city", error);
         }
       },
       (error) => {
         console.error(" Location permission denied", error.message);
-      }
+      },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);

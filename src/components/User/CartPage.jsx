@@ -5,14 +5,14 @@ import { addToCard, removeFromCart } from "../../redux/userSlice";
 import { useNavigate } from "react-router";
 
 const CartPage = () => {
-  const { cartItems } = useSelector((state) => state.user);
+  const { cartItems, totalAmount } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const totalPrice = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  //   const totalPrice = cartItems.reduce(
+  //     (acc, item) => acc + item.price * item.quantity,
+  //     0,
+  //   );
 
   if (cartItems.length === 0) {
     return (
@@ -81,8 +81,7 @@ const CartPage = () => {
                         : removeFromCart(item.id),
                     )
                   }
-                  className="w-8  cursor-pointer h-8 flex items-center justify-center
-                  bg-gray-200 rounded-md hover:bg-gray-300"
+                  className="w-8  cursor-pointer h-8 flex items-center justify-center  bg-gray-200 rounded-md hover:bg-gray-300"
                 >
                   <Minus size={16} />
                 </button>
@@ -93,8 +92,7 @@ const CartPage = () => {
                   onClick={() =>
                     dispatch(addToCard({ id: item.id, quantity: 1 }))
                   }
-                  className="w-8 h-8 cursor-pointer flex items-center justify-center
-                  bg-gray-200 rounded-md hover:bg-gray-300"
+                  className="w-8 h-8 cursor-pointer flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300"
                 >
                   <Plus size={16} />
                 </button>
@@ -111,18 +109,15 @@ const CartPage = () => {
         </div>
 
         {/* Summary */}
-        <div
-          className="mt-6 flex justify-between items-center
-        bg-orange-50 p-4 rounded-xl"
-        >
+        <div className="mt-6 flex justify-between items-center bg-orange-50 p-4 rounded-xl">
           <p className="text-lg font-semibold text-gray-800">Total:</p>
-          <p className="text-xl font-bold text-orange-600">৳ {totalPrice}</p>
+          <p className="text-xl font-bold text-orange-600">৳ {totalAmount}</p>
         </div>
 
         {/* Checkout */}
         <button
-          className="mt-4 cursor-pointer w-full py-3 bg-orange-500 text-white
-          rounded-xl font-semibold hover:bg-orange-600 transition"
+          onClick={() => navigate("/checkout")}
+          className="mt-4 cursor-pointer w-full py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition"
         >
           Proceed to Checkout
         </button>

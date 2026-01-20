@@ -14,6 +14,10 @@ import useGetShopByCity from "./hooks/useGetShopByCity";
 import useGetItemsByCity from "./hooks/useGetItemsByCity";
 import useGetMyShop from "./hooks/useGetMyShop";
 import CartPage from "./components/User/CartPage";
+import CheckOut from "./components/User/CheckOut";
+import PaymentSuccess from "./components/Payment/PaymentSuccess";
+import PaymentFailed from "./components/Payment/PaymentFailed";
+import PaymentCancel from "./components/Payment/PaymentCancel";
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
@@ -81,6 +85,42 @@ function App() {
         path="/cart"
         element={
           userData?.role === "user" ? <CartPage /> : <Navigate to={"/signIn"} />
+        }
+      />
+      <Route
+        path="/checkout"
+        element={
+          userData?.role === "user" ? <CheckOut /> : <Navigate to={"/signIn"} />
+        }
+      />
+      <Route
+        path="/payment-success/:tran_id"
+        element={
+          userData?.role === "user" ? (
+            <PaymentSuccess />
+          ) : (
+            <Navigate to={"/signIn"} />
+          )
+        }
+      />
+      <Route
+        path="/payment-failed"
+        element={
+          userData?.role === "user" ? (
+            <PaymentFailed />
+          ) : (
+            <Navigate to={"/signIn"} />
+          )
+        }
+      />
+      <Route
+        path="/payment-cancelled"
+        element={
+          userData?.role === "user" ? (
+            <PaymentCancel />
+          ) : (
+            <Navigate to={"/signIn"} />
+          )
         }
       />
     </Routes>
