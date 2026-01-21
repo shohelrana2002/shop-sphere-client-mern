@@ -45,7 +45,9 @@ const ChangeMapView = ({ position }) => {
 
 const CheckOut = () => {
   const navigate = useNavigate();
-  const { cartItems, userData } = useSelector((state) => state.user);
+  const { cartItems, userData, totalAmount } = useSelector(
+    (state) => state.user,
+  );
   const { location, address: addressCurrent } = useSelector(
     (state) => state.map,
   );
@@ -54,11 +56,14 @@ const CheckOut = () => {
   const [search, setSearch] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [position, setPosition] = useState([location?.lat, location?.lon]);
+  //   const [loading, setLoading] = useState(false);
+  //   const totalPrice = cartItems.reduce(
+  //     (sum, item) => sum + item.price * item.quantity,
+  //     0,
+  //   );
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
+  const deliveryFee = totalAmount > 400 ? 0 : 60;
+  const amountWithDeliveryFee = totalAmount + deliveryFee;
 
   /* ===== Search location ===== */
   const handleSearchLocation = async () => {
@@ -111,7 +116,7 @@ const CheckOut = () => {
       location: position,
       paymentMethod,
       items: cartItems,
-      totalPrice: Number(totalPrice),
+      totalPrice: Number(amountWithDeliveryFee),
     };
     console.log("ORDER 👉", orderData);
   };
@@ -127,7 +132,7 @@ const CheckOut = () => {
           location: position,
           paymentMethod,
           cartItems,
-          totalPrice: Number(totalPrice),
+          totalPrice: Number(amountWithDeliveryFee),
         },
         {
           withCredentials: true, // cookies পাঠানোর জন্য
@@ -233,28 +238,61 @@ const CheckOut = () => {
         </div>
 
         {/* Payment */}
-        <div className="space-y-2">
-          <h3 className="font-semibold flex items-center gap-2">
-            <CreditCard size={18} /> Payment Method
+        <div className="space-y-4">
+          <h3 className="font-semibold text-lg flex items-center gap-2 text-gray-800">
+            <CreditCard size={20} className="text-primary" />
+            Payment Method
           </h3>
 
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Cash on Delivery */}
+            <label
+              className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition
+        ${
+          paymentMethod === "COD"
+            ? "border-green-500 bg-green-50"
+            : "border-gray-200 hover:border-gray-400"
+        }`}
+            >
               <input
                 type="radio"
+                name="paymentMethod"
                 checked={paymentMethod === "COD"}
                 onChange={() => setPaymentMethod("COD")}
+                className="accent-green-500"
               />
-              <Truck size={16} /> Cash on Delivery
+              <Truck size={20} className="text-green-600" />
+              <div>
+                <p className="font-medium text-gray-800">Cash on Delivery</p>
+                <p className="text-sm text-gray-500">
+                  Pay when your order arrives
+                </p>
+              </div>
             </label>
 
-            <label className="flex items-center gap-2">
+            {/* Online Payment */}
+            <label
+              className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition
+        ${
+          paymentMethod === "ONLINE"
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-200 hover:border-gray-400"
+        }`}
+            >
               <input
                 type="radio"
+                name="paymentMethod"
                 checked={paymentMethod === "ONLINE"}
                 onChange={() => setPaymentMethod("ONLINE")}
+                className="accent-blue-500"
               />
-              <CreditCard size={16} /> Online Payment
+              <CreditCard size={20} className="text-blue-600" />
+              <div>
+                <p className="font-medium text-gray-800">Online Payment</p>
+                <p className="text-sm text-gray-500">
+                  Pay securely via SSLCommerz
+                </p>
+              </div>
             </label>
           </div>
         </div>
@@ -269,9 +307,29 @@ const CheckOut = () => {
               <span>৳ {item.price * item.quantity}</span>
             </div>
           ))}
-          <div className="border-t pt-2 flex justify-between font-bold">
-            <span>Total</span>
-            <span className="text-orange-600">৳ {totalPrice}</span>
+          <div className="mt-4 space-y-3 rounded-xl  ">
+            {/* Delivery Fee */}
+            <div className="flex items-center justify-between text-sm text-gray-600">
+              <span className="flex items-center gap-2">
+                <Truck size={16} className="text-gray-500" />
+                Delivery Fee
+              </span>
+              <span className="font-medium text-gray-800">
+                {deliveryFee === 0 ? "Free Delivery" : ` ৳ ${deliveryFee} `}
+              </span>
+            </div>
+
+            <div className="border-t border-dashed" />
+
+            {/* Total */}
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-base font-semibold text-gray-900">
+                Total Payable
+              </span>
+              <span className="text-lg font-bold text-orange-600">
+                ৳ {amountWithDeliveryFee}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -282,7 +340,7 @@ const CheckOut = () => {
               : handlePlaceOrder()
           }
           disabled={!address}
-          className="w-full py-3 bg-orange-500 text-white rounded-xl font-semibold"
+          className="w-full py-3 cursor-pointer bg-orange-500 text-white rounded-xl font-semibold"
         >
           {paymentMethod === "ONLINE" ? "Pay Now" : "Place Order"}
         </button>
