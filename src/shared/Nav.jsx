@@ -124,7 +124,10 @@ const Nav = () => {
           {/* My Orders */}
           {userData?.role === "user" && (
             <>
-              <Link className="hidden md:block text-gray-700 hover:text-orange-500 font-medium">
+              <Link
+                to={"/myOrders"}
+                className="hidden md:block text-gray-700 hover:text-orange-500 font-medium"
+              >
                 My Orders
               </Link>
 

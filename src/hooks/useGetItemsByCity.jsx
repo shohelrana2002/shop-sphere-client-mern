@@ -12,11 +12,11 @@ const useGetItemsByCity = () => {
       try {
         const { data } = await axios.get(
           `${serverURL}/api/item/get-by-city/${currentCity}`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         dispatch(setItemsInMyCity(data));
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.log(error);
       }

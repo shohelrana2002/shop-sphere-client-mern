@@ -15,7 +15,7 @@ const useGetMyShop = () => {
         });
         dispatch(setMyShopData(data));
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     };
     fetchMyShop();

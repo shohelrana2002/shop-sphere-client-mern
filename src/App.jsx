@@ -18,6 +18,7 @@ import CheckOut from "./components/User/CheckOut";
 import PaymentSuccess from "./components/Payment/PaymentSuccess";
 import PaymentFailed from "./components/Payment/PaymentFailed";
 import PaymentCancel from "./components/Payment/PaymentCancel";
+import MyOrders from "./components/User/MyOrders";
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
@@ -93,6 +94,13 @@ function App() {
           userData?.role === "user" ? <CheckOut /> : <Navigate to={"/signIn"} />
         }
       />
+      <Route
+        path="/myOrders"
+        element={
+          userData?.role === "user" ? <MyOrders /> : <Navigate to={"/signIn"} />
+        }
+      />
+      {/* Payment Routes */}
       <Route
         path="/payment-success/:tran_id"
         element={
