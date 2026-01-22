@@ -15,9 +15,11 @@ import {
   ArrowLeft,
   Search,
 } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { serverURL } from "../../App";
+import { clearCart } from "../../redux/userSlice";
 
 /* ===== Map click select ===== */
 const LocationPicker = ({ setAddress, setPosition }) => {
@@ -45,6 +47,7 @@ const ChangeMapView = ({ position }) => {
 
 const CheckOut = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { cartItems, userData, totalAmount } = useSelector(
     (state) => state.user,
   );
@@ -109,16 +112,28 @@ const CheckOut = () => {
     setAddress(data.display_name || `${lat}, ${lng}`);
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const orderData = {
       userData,
       address,
       location: position,
       paymentMethod,
-      items: cartItems,
-      totalPrice: Number(amountWithDeliveryFee),
+      cartItems,
+      totalAmount: Number(amountWithDeliveryFee),
     };
-    console.log("ORDER 👉", orderData);
+    try {
+      const data = await axios.post(
+        `${serverURL}/api/orders/place-orders`,
+        orderData,
+        { withCredentials: true },
+      );
+      if (data?.status === 201 || data?.status === 200) {
+        dispatch(clearCart());
+        navigate("/place-orders-success");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   /* =========== Handle Online Payment====== */
 

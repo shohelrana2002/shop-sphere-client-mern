@@ -48,6 +48,7 @@ const SignUp = () => {
         setLoading(false);
         setError("");
         toast.success("Registered Successfully! Please Sign In.");
+        window.location.reload();
         // form.reset();
       }
     } catch (error) {
@@ -71,7 +72,7 @@ const SignUp = () => {
           email: result.user.email,
           mobile,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch(setUser(data));
       if (!data?.success) {

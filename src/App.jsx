@@ -19,6 +19,7 @@ import PaymentSuccess from "./components/Payment/PaymentSuccess";
 import PaymentFailed from "./components/Payment/PaymentFailed";
 import PaymentCancel from "./components/Payment/PaymentCancel";
 import MyOrders from "./components/User/MyOrders";
+import PlaceOrderSuccess from "./components/Payment/PlaceOrderSuccess";
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
@@ -106,6 +107,16 @@ function App() {
         element={
           userData?.role === "user" ? (
             <PaymentSuccess />
+          ) : (
+            <Navigate to={"/signIn"} />
+          )
+        }
+      />
+      <Route
+        path="/place-orders-success"
+        element={
+          userData?.role === "user" ? (
+            <PlaceOrderSuccess />
           ) : (
             <Navigate to={"/signIn"} />
           )
