@@ -140,7 +140,7 @@ const CheckOut = () => {
   const handleOnlinePayment = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/payment/sslcommerz",
+        `${serverURL}/api/payment/sslcommerz`,
         {
           userData,
           address,
@@ -150,7 +150,7 @@ const CheckOut = () => {
           totalPrice: Number(amountWithDeliveryFee),
         },
         {
-          withCredentials: true, // cookies পাঠানোর জন্য
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
@@ -189,7 +189,7 @@ const CheckOut = () => {
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={() => navigate(-1)}
-          className="text-gray-600 hover:text-orange-600"
+          className="text-gray-600 cursor-pointer hover:text-orange-600"
         >
           <ArrowLeft />
         </button>

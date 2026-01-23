@@ -13,6 +13,7 @@ import { serverURL } from "../App";
 import { setUser } from "../redux/userSlice";
 import toast from "react-hot-toast";
 import { FaCartPlus, FaHourglassHalf } from "react-icons/fa";
+import { ClipboardList } from "lucide-react";
 
 const Nav = () => {
   const navigate = useNavigate();
@@ -102,13 +103,22 @@ const Nav = () => {
           {userData?.role === "owner" && (
             <>
               {myShopData && (
-                <Link
-                  to={"/add-food-item"}
-                  className=" text-gray-700 inline-flex items-center gap-0 md:gap-1 hover:text-orange-500 font-medium"
-                >
-                  <FaCartPlus size={20} />
-                  <span className="hidden md:block">Add Food</span>
-                </Link>
+                <>
+                  <Link
+                    to={"/add-food-item"}
+                    className=" text-gray-700 inline-flex items-center gap-0 md:gap-1 hover:text-orange-500 font-medium"
+                  >
+                    <FaCartPlus size={20} />
+                    <span className="hidden md:block">Add Food</span>
+                  </Link>
+                  <Link
+                    to={"/mangeOrders"}
+                    className=" text-gray-700 inline-flex items-center gap-0 md:gap-1 hover:text-orange-500 font-medium"
+                  >
+                    <ClipboardList size={20} className="text-orange-600" />
+                    <span className="hidden md:block">Mange Orders</span>
+                  </Link>
+                </>
               )}
 
               <Link className="relative cursor-pointer inline-flex items-center hover:text-orange-600">
@@ -161,9 +171,12 @@ const Nav = () => {
                   👤 Profile
                 </button>
                 {userData?.role === "user" && (
-                  <button className="w-full cursor-pointer md:hidden text-left px-4 py-2 hover:bg-orange-200 transition">
+                  <Link
+                    to={"/myOrders"}
+                    className="w-full cursor-pointer md:hidden text-left px-4 py-2 hover:bg-orange-200 transition"
+                  >
                     🛒 My Orders
-                  </button>
+                  </Link>
                 )}
                 <button className="w-full cursor-pointer text-left px-4 py-2 hover:bg-orange-200 transition">
                   ⚙️ Settings

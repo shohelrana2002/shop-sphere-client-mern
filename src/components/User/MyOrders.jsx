@@ -1,33 +1,16 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { serverURL } from "../../App";
-import { ArrowLeft, Clock, Loader, Truck } from "lucide-react";
+import { ArrowLeft, Clock, Loader, Store, Truck } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import useGetMyOrders from "../../hooks/useGetMyOrders";
 
 const MyOrders = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  useGetMyOrders();
+  const { myOrders, myOrdersLoading } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const fetchMyOrders = async () => {
-      try {
-        const res = await axios.get(`${serverURL}/api/orders/my-orders`, {
-          withCredentials: true,
-        });
-        setOrders(res.data.orders || []);
-        console.log(res.data);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMyOrders();
-  }, []);
   const navigate = useNavigate();
-  if (loading) {
+  if (myOrdersLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="animate-spin text-lg  text-gray-500 dark:text-gray-300">
@@ -37,7 +20,7 @@ const MyOrders = () => {
     );
   }
 
-  if (!orders.length) {
+  if (!myOrders?.length) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-orange-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 px-4">
         <motion.div
@@ -65,8 +48,8 @@ const MyOrders = () => {
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
-              onClick={() => window.history.back()}
-              className="px-5 py-2 rounded-lg border border-gray-300 dark:border-gray-600
+              onClick={() => navigate(-1)}
+              className="px-5 py-2 cursor-pointer rounded-lg border border-gray-300 dark:border-gray-600
             text-gray-700 dark:text-gray-200 font-medium
             hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             >
@@ -75,7 +58,7 @@ const MyOrders = () => {
 
             <button
               onClick={() => navigate("/")}
-              className="px-6 py-2 rounded-lg font-semibold text-white
+              className="px-6 py-2 cursor-pointer rounded-lg font-semibold text-white
             bg-linear-to-r from-orange-500 to-orange-600
             hover:from-orange-600 hover:to-orange-700
             shadow-md transition"
@@ -93,8 +76,8 @@ const MyOrders = () => {
       {/* Header */}
       <div className="max-w-6xl mx-auto flex items-center justify-between mb-10">
         <button
-          onClick={() => window.history.back()}
-          className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-orange-600 transition"
+          onClick={() => navigate("/")}
+          className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-orange-600 transition"
         >
           <ArrowLeft size={18} /> Back
         </button>
@@ -107,7 +90,7 @@ const MyOrders = () => {
       </div>
 
       <div className="space-y-8 max-w-6xl mx-auto">
-        {orders.map((order, orderIndex) => {
+        {myOrders.map((order, orderIndex) => {
           const deliveryFee = order.totalAmount >= 400 ? 0 : 60;
           const grandTotal = order.totalAmount;
 
@@ -157,6 +140,12 @@ const MyOrders = () => {
                   key={shop._id}
                   className="mb-6 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
                 >
+                  {/* ✅ Shop Info */}
+                  <div className="mb-4 flex items-center gap-2 text-orange-600 font-semibold">
+                    <Store size={18} />
+                    <span>{shop?.shop?.name || "Shop"}</span>
+                  </div>
+
                   {shop.shopOrderItem?.map((item) => (
                     <div
                       key={item._id}
@@ -176,13 +165,15 @@ const MyOrders = () => {
                           ৳ {item.price} × {item.quantity}
                         </p>
                       </div>
-
                       <p className="font-bold text-gray-800 dark:text-gray-100">
                         ৳ {item.price * item.quantity}
                       </p>
                     </div>
                   ))}
-
+                  <div className="flex justify-between mt-2 font-semibold text-sm">
+                    <span>Status:</span>
+                    <span> {shop.status}</span>
+                  </div>
                   <div className="flex justify-between mt-2 font-semibold text-sm">
                     <span>Shop Subtotal</span>
                     <span>৳ {shop.subTotal}</span>

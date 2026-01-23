@@ -20,6 +20,8 @@ import PaymentFailed from "./components/Payment/PaymentFailed";
 import PaymentCancel from "./components/Payment/PaymentCancel";
 import MyOrders from "./components/User/MyOrders";
 import PlaceOrderSuccess from "./components/Payment/PlaceOrderSuccess";
+import MangeOrders from "./components/Owner/MangeOrders";
+// import useGetMyOrders from "./hooks/useGetMyOrders";
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
@@ -29,6 +31,7 @@ function App() {
   useGetCity();
   useGetShopByCity();
   useGetItemsByCity();
+  // useGetMyOrders();
 
   if (loading) {
     return (
@@ -99,6 +102,16 @@ function App() {
         path="/myOrders"
         element={
           userData?.role === "user" ? <MyOrders /> : <Navigate to={"/signIn"} />
+        }
+      />
+      <Route
+        path="/mangeOrders"
+        element={
+          userData?.role === "owner" ? (
+            <MangeOrders />
+          ) : (
+            <Navigate to={"/signIn"} />
+          )
         }
       />
       {/* Payment Routes */}
