@@ -21,13 +21,14 @@ const ManageOrders = () => {
   const navigate = useNavigate();
   const { myOrders, myOrdersLoading } = useSelector((state) => state.user);
 
-  const handleStatusChange = async (orderId, newStatus) => {
+  const handleStatusChange = async (orderId, shopId, newStatus) => {
     try {
       await axios.put(
         `${serverURL}/api/orders/update-status/${orderId}`,
-        { status: newStatus },
+        { status: newStatus, shopId },
         { withCredentials: true },
       );
+
       window.location.reload();
     } catch (err) {
       console.error("Status update error", err);
@@ -78,7 +79,7 @@ const ManageOrders = () => {
       </div>
 
       <div className="space-y-8 max-w-6xl mx-auto">
-        {myOrders.map((order, index) => (
+        {myOrders?.map((order, index) => (
           <motion.div
             key={order._id}
             initial={{ opacity: 0, y: 20 }}
@@ -87,7 +88,7 @@ const ManageOrders = () => {
             className="bg-white/80 dark:bg-gray-900/70 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-3xl shadow-sm overflow-hidden"
           >
             {/* ===== ORDER HEADER ===== */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-6 py-5 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-6 py-5 border-b border-orange-500/80 border-dotted bg-gray-50 dark:bg-gray-900">
               <div>
                 <p className="text-xs text-gray-500">ORDER ID</p>
                 <p className="font-semibold text-gray-800 dark:text-gray-100">
@@ -95,7 +96,11 @@ const ManageOrders = () => {
                 </p>
                 <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                   <Clock size={13} />{" "}
-                  {new Date(order.createdAt).toLocaleString()}
+                  {new Date(order.createdAt).toLocaleString("en-BD", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                    hour12: true,
+                  })}
                 </p>
               </div>
 
@@ -136,16 +141,29 @@ const ManageOrders = () => {
                     <p className="text-xs text-gray-500 mb-1">
                       Delivery Address
                     </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {order.deliveryAddress?.text || "Address not provided"}
-                    </p>
+                    {order.deliveryAddress?.text ? (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                          order.deliveryAddress.text,
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 dark:text-blue-400 leading-relaxed hover:underline wrap-break-word"
+                      >
+                        {order.deliveryAddress.text}
+                      </a>
+                    ) : (
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {order.deliveryAddress?.text || "Address not provided"}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* ===== SHOP ORDERS ===== */}
-            {order.shopOrder.map((shop, idx) => (
+            {order?.shopOrder?.map((shop, idx) => (
               <div key={idx} className="px-6 py-5">
                 <div className="flex items-center gap-2 text-orange-600 font-semibold mb-3">
                   <Store size={16} />
@@ -153,7 +171,7 @@ const ManageOrders = () => {
                 </div>
 
                 <div className=" ">
-                  {shop.shopOrderItem.map((item) => (
+                  {shop?.shopOrderItem?.map((item) => (
                     <div
                       key={item._id}
                       className="flex justify-between items-center px-4 py-3 text-sm"
@@ -166,7 +184,12 @@ const ManageOrders = () => {
                           ৳ {item?.price} × {item?.quantity}
                         </p>
                       </div>
-
+                      {/* Product Image */}
+                      <img
+                        src={item?.item?.image}
+                        alt={item?.item?.name}
+                        className="w-12 h-12 object-cover rounded-lg border"
+                      />
                       <p className="font-semibold text-gray-800 dark:text-gray-100">
                         ৳ {item?.price * item?.quantity}
                       </p>
@@ -182,7 +205,7 @@ const ManageOrders = () => {
 
                   <div className="flex items-center gap-3">
                     <span
-                      className={`px-3 py-1 text-xs rounded-full border font-semibold capitalize ${statusColors[order.status]}`}
+                      className={`px-3 py-1 text-xs rounded-full border font-semibold capitalize ${statusColors[shop?.status]}`}
                     >
                       {shop?.status}
                     </span>
@@ -191,7 +214,11 @@ const ManageOrders = () => {
                       value={shop?.status}
                       disabled={shop?.status === "delivered"}
                       onChange={(e) =>
-                        handleStatusChange(order?._id, e.target.value)
+                        handleStatusChange(
+                          order._id,
+                          shop.shop._id,
+                          e.target.value,
+                        )
                       }
                       className="border rounded-lg px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700"
                     >

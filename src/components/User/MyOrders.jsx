@@ -90,7 +90,7 @@ const MyOrders = () => {
       </div>
 
       <div className="space-y-8 max-w-6xl mx-auto">
-        {myOrders.map((order, orderIndex) => {
+        {myOrders?.map((order, orderIndex) => {
           const deliveryFee = order.totalAmount >= 400 ? 0 : 60;
           const grandTotal = order.totalAmount;
 
@@ -113,7 +113,12 @@ const MyOrders = () => {
                   </p>
                   <p className="text-sm text-gray-500 flex items-center gap-1">
                     <Clock size={14} />
-                    {new Date(order.createdAt).toLocaleString()}
+                    {new Date(order.createdAt).toLocaleString("en-BD", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                      hour12: true,
+                      timeZone: "Asia/Dhaka",
+                    })}
                   </p>
                 </div>
 
@@ -171,8 +176,20 @@ const MyOrders = () => {
                     </div>
                   ))}
                   <div className="flex justify-between mt-2 font-semibold text-sm">
-                    <span>Status:</span>
-                    <span> {shop.status}</span>
+                    <span className="font-bold text-gray-800 dark:text-gray-100">
+                      Status:
+                    </span>
+                    <span
+                      className={`px-3 py-1 uppercase text-xs font-semibold rounded-full w-fit
+                  ${
+                    order?.paymentStatus !== "PENDING"
+                      ? "bg-yellow-100 text-orange-700"
+                      : "bg-green-100 text-green-700"
+                  }`}
+                    >
+                      {" "}
+                      {shop?.status}
+                    </span>
                   </div>
                   <div className="flex justify-between mt-2 font-semibold text-sm">
                     <span>Shop Subtotal</span>
