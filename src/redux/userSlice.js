@@ -67,6 +67,33 @@ const userSlice = createSlice({
       state.myOrders = action.payload;
       state.myOrdersLoading = false;
     },
+    updateOrderStatus: (state, action) => {
+      const { orderId, shopId, status } = action.payload;
+
+      const order = state.myOrders.find((o) => o._id === orderId);
+      if (!order) return;
+
+      const shopOrderItem = order.shopOrder.find((s) => {
+        const currentShopId = typeof s.shop === "object" ? s.shop._id : s.shop;
+
+        return currentShopId?.toString() === shopId;
+      });
+
+      if (shopOrderItem) {
+        shopOrderItem.status = status;
+      }
+    },
+
+    // updateOrderStatus: (state, action) => {
+    //   const { orderId, shopId, status } = action.payload;
+    //   const order = state.myOrders.find((o) => o._id == orderId);
+
+    //   if (order) {
+    //     if (order.shopOrder && order.shopOrder.shop._id?.toString() == shopId) {
+    //       order.shopOrder.status = status;
+    //     }
+    //   }
+    // },
   },
 });
 
@@ -82,5 +109,6 @@ export const {
   clearCart,
   removeFromCart,
   setMyOrders,
+  updateOrderStatus,
 } = userSlice.actions;
 export default userSlice.reducer;

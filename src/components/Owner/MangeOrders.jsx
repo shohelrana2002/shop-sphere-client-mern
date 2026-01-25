@@ -10,17 +10,18 @@ import {
   CreditCard,
   PackageCheck,
 } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useGetMyOrders from "../../hooks/useGetMyOrders";
 import { useNavigate } from "react-router";
 import { serverURL } from "../../App";
 import axios from "axios";
+import { updateOrderStatus } from "../../redux/userSlice";
 
 const ManageOrders = () => {
   useGetMyOrders();
   const navigate = useNavigate();
   const { myOrders, myOrdersLoading } = useSelector((state) => state.user);
-
+  const dispatch = useDispatch();
   const handleStatusChange = async (orderId, shopId, newStatus) => {
     try {
       await axios.put(
@@ -28,8 +29,8 @@ const ManageOrders = () => {
         { status: newStatus, shopId },
         { withCredentials: true },
       );
-
-      window.location.reload();
+      dispatch(updateOrderStatus({ orderId, shopId, status: newStatus }));
+      //   window.location.reload();
     } catch (err) {
       console.error("Status update error", err);
     }
