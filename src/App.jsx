@@ -21,6 +21,7 @@ import PaymentCancel from "./components/Payment/PaymentCancel";
 import MyOrders from "./components/User/MyOrders";
 import PlaceOrderSuccess from "./components/Payment/PlaceOrderSuccess";
 import MangeOrders from "./components/Owner/MangeOrders";
+import useUpdateLocation from "./hooks/useUpdateLocation";
 // import useGetMyOrders from "./hooks/useGetMyOrders";
 export const serverURL = "http://localhost:3000";
 function App() {
@@ -32,6 +33,7 @@ function App() {
   useGetShopByCity();
   useGetItemsByCity();
   // useGetMyOrders();
+  useUpdateLocation();
 
   if (loading) {
     return (
