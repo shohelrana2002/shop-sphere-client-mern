@@ -7,12 +7,11 @@ const useUpdateLocation = () => {
   const { userData } = useSelector((state) => state.user);
   useEffect(() => {
     const updateLocation = async (lat, lon) => {
-      const { data } = await axios.post(
+      await axios.post(
         `${serverURL}/api/user/update-location`,
         { lat, lon },
         { withCredentials: true },
       );
-      console.log(data);
     };
     navigator.geolocation.watchPosition((pos) => {
       updateLocation(pos.coords.latitude, pos.coords.longitude);

@@ -16,20 +16,25 @@ import { useNavigate } from "react-router";
 import { serverURL } from "../../App";
 import axios from "axios";
 import { updateOrderStatus } from "../../redux/userSlice";
+import { useState } from "react";
 
 const ManageOrders = () => {
+  const [availableBoys, setAvailableBoys] = useState([]);
   useGetMyOrders();
   const navigate = useNavigate();
   const { myOrders, myOrdersLoading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
   const handleStatusChange = async (orderId, shopId, newStatus) => {
     try {
-      await axios.put(
+      const { data } = await axios.put(
         `${serverURL}/api/orders/update-status/${orderId}`,
         { status: newStatus, shopId },
         { withCredentials: true },
       );
       dispatch(updateOrderStatus({ orderId, shopId, status: newStatus }));
+      setAvailableBoys(data?.availableBoys);
+      console.log(data);
       //   window.location.reload();
     } catch (err) {
       console.error("Status update error", err);
@@ -229,6 +234,42 @@ const ManageOrders = () => {
                     </select>
                   </div>
                 </div>
+                {shop.status === "out of delivery" &&
+                availableBoys?.length > 0 ? (
+                  <div className="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
+                    <h3 className="text-sm font-bold text-orange-600">
+                      🚚 Available Delivery Partners
+                    </h3>
+
+                    {availableBoys.map((boy) => (
+                      <div
+                        key={boy.id}
+                        className="flex items-center justify-between bg-white shadow-sm rounded-lg p-3 border hover:shadow-md transition"
+                      >
+                        {/* Left Info */}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-bold text-orange-600">
+                            {boy.fullName?.charAt(0)}
+                          </div>
+
+                          <div>
+                            <p className="font-semibold text-gray-800">
+                              {boy.fullName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              📞 {boy.mobile}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              📍 {boy.latitude}, {boy.longitude}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-green-600">🟢 Nearby Rider</p>
+                )}
               </div>
             ))}
           </motion.div>
