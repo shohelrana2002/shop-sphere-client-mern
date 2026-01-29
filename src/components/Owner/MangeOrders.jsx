@@ -34,7 +34,7 @@ const ManageOrders = () => {
       );
       dispatch(updateOrderStatus({ orderId, shopId, status: newStatus }));
       setAvailableBoys(data?.availableBoys);
-      console.log(data);
+      // console.log(data);
       //   window.location.reload();
     } catch (err) {
       console.error("Status update error", err);

@@ -1,94 +1,72 @@
-import React from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts";
-
-const earningsData = [
-  { day: "Mon", income: 500 },
-  { day: "Tue", income: 800 },
-  { day: "Wed", income: 650 },
-  { day: "Thu", income: 900 },
-  { day: "Fri", income: 700 },
-  { day: "Sat", income: 1200 },
-  { day: "Sun", income: 950 },
-];
-
-const ordersData = [
-  { day: "Mon", orders: 5 },
-  { day: "Tue", orders: 8 },
-  { day: "Wed", orders: 6 },
-  { day: "Thu", orders: 9 },
-  { day: "Fri", orders: 7 },
-  { day: "Sat", orders: 12 },
-  { day: "Sun", orders: 10 },
-];
+import { Truck } from "lucide-react";
+import { useSelector } from "react-redux";
+import DeliveryNav from "../../shared/DeliveryNav";
+// eslint-disable-next-line no-unused-vars
+import { motion } from "framer-motion";
+import axios from "axios";
+import { serverURL } from "../../App";
+import { useEffect } from "react";
+const StatCard = ({ icon, title, value, color }) => (
+  <motion.div
+    whileHover={{ y: -4 }}
+    className="bg-white/70  dark:bg-gray-800/70 backdrop-blur-lg shadow-md rounded-2xl p-5 flex items-center gap-4 border border-white/20"
+  >
+    <div className={`p-3 rounded-xl ${color} text-white shadow`}>{icon}</div>
+    <div>
+      <p className="text-sm text-gray-500 dark:text-gray-300">{title}</p>
+      <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+        {value}
+      </h2>
+    </div>
+  </motion.div>
+);
 
 const DeliveryBoyDashboard = () => {
+  const { userData } = useSelector((state) => state.user);
+  const fetchAssignment = async () => {
+    try {
+      const { data } = await axios.get(
+        `${serverURL}/api/orders/get-assignments`,
+        { withCredentials: true },
+      );
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchAssignment();
+  }, [userData]);
   return (
-    <div className="min-h-screen w-full container mx-auto -mt-34 bg-linear-to-br from-slate-100 to-slate-200 p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Delivery Dashboard
-      </h1>
+    <div className="min-h-screen w-full -mt-36 bg-linear-to-br from-slate-100 to-slate-200 dark:from-gray-900 dark:to-gray-800">
+      <DeliveryNav />
 
-      {/* STAT CARDS */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white shadow-lg rounded-xl p-5">
-          <p className="text-gray-500">Today's Income</p>
-          <h2 className="text-2xl font-bold text-green-600">৳ 1,250</h2>
-        </div>
+      <div className="max-w-7xl mx-auto px-6 pt-24 pb-10">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+              <Truck className="text-orange-500" size={28} />
+              Delivery Dashboard
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Welcome back,{" "}
+              <span className="font-semibold">{userData?.fullName}</span> 👋
+            </p>
+          </div>
 
-        <div className="bg-white shadow-lg rounded-xl p-5">
-          <p className="text-gray-500">Monthly Income</p>
-          <h2 className="text-2xl font-bold text-blue-600">৳ 24,500</h2>
-        </div>
-
-        <div className="bg-white shadow-lg rounded-xl p-5">
-          <p className="text-gray-500">Delivered Orders</p>
-          <h2 className="text-2xl font-bold text-purple-600">132</h2>
-        </div>
-
-        <div className="bg-white shadow-lg rounded-xl p-5">
-          <p className="text-gray-500">Pending Deliveries</p>
-          <h2 className="text-2xl font-bold text-red-500">4</h2>
-        </div>
-      </div>
-
-      {/* CHART SECTION */}
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Earnings Chart */}
-        <div className="bg-white rounded-xl shadow-lg p-5">
-          <h2 className="font-semibold mb-4">Weekly Earnings</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={earningsData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="income" stroke="#22c55e" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Orders Chart */}
-        <div className="bg-white rounded-xl shadow-lg p-5">
-          <h2 className="font-semibold mb-4">Weekly Deliveries</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={ordersData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="orders" fill="#3b82f6" />
-            </BarChart>
-          </ResponsiveContainer>
+          {/* Profile Card */}
+          <div className="bg-white  shadow-lg rounded-2xl px-6 py-4 flex items-center gap-4 border">
+            <div className="w-14 h-14 rounded-full bg-orange-500 text-white flex items-center justify-center text-lg font-bold">
+              {userData?.fullName?.charAt(0)}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-800 dark:text-white">
+                {userData?.fullName}
+              </p>
+              <p className="text-sm text-gray-500">{userData?.mobile}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
