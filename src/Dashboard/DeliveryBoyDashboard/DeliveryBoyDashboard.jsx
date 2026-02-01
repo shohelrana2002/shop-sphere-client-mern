@@ -22,7 +22,7 @@ const StatCard = ({ icon, title, value, color }) => (
   </motion.div>
 );
 
-const AssignmentCard = ({ data }) => {
+const AssignmentCard = ({ data, acceptOrder, rejectOrder }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 25 }}
@@ -46,7 +46,7 @@ const AssignmentCard = ({ data }) => {
           </div>
         </div>
 
-        <span className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow">
+        <span className="bg-linear-to-r from-orange-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow">
           ৳ {data.subTotal}
         </span>
       </div>
@@ -67,34 +67,39 @@ const AssignmentCard = ({ data }) => {
 
       {/* Buttons */}
       <div className="flex gap-3 mt-2">
-        <button className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-105 active:scale-95 transition text-white py-2.5 rounded-xl font-semibold shadow-md">
+        <button
+          onClick={() => acceptOrder(data.assignmentId)}
+          className="flex-1 bg-linear-to-r from-green-500 to-emerald-600 hover:scale-105 active:scale-95 transition text-white py-2.5 rounded-xl font-semibold shadow-md"
+        >
           Accept
         </button>
-        <button className="flex-1 bg-gray-200 dark:bg-gray-600 hover:bg-red-500 hover:text-white transition py-2.5 rounded-xl font-semibold">
+        <button
+          onClick={() => rejectOrder(data.assignmentId)}
+          className="flex-1 bg-gray-200 dark:bg-gray-600 hover:bg-red-500 hover:text-white transition py-2.5 rounded-xl font-semibold"
+        >
           Reject
         </button>
       </div>
     </motion.div>
   );
 };
-
+const SkeletonCard = () => (
+  <div className="animate-pulse bg-white dark:bg-gray-800 p-5 rounded-2xl shadow flex flex-col gap-4">
+    <div className="h-5 w-1/2 bg-gray-300 rounded"></div>
+    <div className="h-4 w-full bg-gray-200 rounded"></div>
+    <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
+    <div className="flex gap-3 mt-2">
+      <div className="h-10 w-full bg-gray-300 rounded"></div>
+      <div className="h-10 w-full bg-gray-300 rounded"></div>
+    </div>
+  </div>
+);
 const DeliveryBoyDashboard = () => {
   const { userData } = useSelector((state) => state.user);
 
   const [availableAssignments, setAvailableAssignments] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const SkeletonCard = () => (
-    <div className="animate-pulse bg-white dark:bg-gray-800 p-5 rounded-2xl shadow flex flex-col gap-4">
-      <div className="h-5 w-1/2 bg-gray-300 rounded"></div>
-      <div className="h-4 w-full bg-gray-200 rounded"></div>
-      <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
-      <div className="flex gap-3 mt-2">
-        <div className="h-10 w-full bg-gray-300 rounded"></div>
-        <div className="h-10 w-full bg-gray-300 rounded"></div>
-      </div>
-    </div>
-  );
 
   const fetchAssignments = async () => {
     try {
@@ -110,11 +115,33 @@ const DeliveryBoyDashboard = () => {
       setLoading(false);
     }
   };
+  const acceptOrder = async (assignmentId) => {
+    try {
+      const { data } = await axios.get(
+        `${serverURL}/api/orders/accept-order/${assignmentId}`,
+        { withCredentials: true },
+      );
+      console.log(assignmentId);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const rejectOrder = async (assignmentId) => {
+    await axios.post(
+      `${serverURL}/api/orders/reject/${assignmentId}`,
+      {},
+      { withCredentials: true },
+    );
+
+    setAvailableAssignments((prev) =>
+      prev.filter((a) => a.assignmentId !== assignmentId),
+    );
+  };
 
   useEffect(() => {
     if (userData) {
       fetchAssignments();
-      setLoading(false);
     }
   }, [userData]);
 
@@ -182,7 +209,12 @@ const DeliveryBoyDashboard = () => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {availableAssignments.map((assign) => (
-                <AssignmentCard key={assign.assignmentId} data={assign} />
+                <AssignmentCard
+                  key={assign.assignmentId}
+                  acceptOrder={acceptOrder}
+                  rejectOrder={rejectOrder}
+                  data={assign}
+                />
               ))}
             </div>
           )}
