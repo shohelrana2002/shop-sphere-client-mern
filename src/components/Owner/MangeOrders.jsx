@@ -267,6 +267,93 @@ const ManageOrders = () => {
                       </div>
                     ))}
                   </div>
+                ) : shop.assignedDeliveryBoy ? (
+                  <div className="mt-5 bg-linear-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5 shadow-sm">
+                    <h3 className="text-sm font-bold text-green-700 mb-4 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      Assigned Delivery Partner
+                    </h3>
+
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 bg-white p-4 rounded-xl shadow-sm border border-dotted border-orange-200">
+                      {/* LEFT PROFILE */}
+                      <div className="flex items-center gap-4">
+                        <div className="relative">
+                          <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center text-xl font-bold text-green-700 shadow-inner">
+                            {shop.assignedDeliveryBoy.fullName?.charAt(0)}
+                          </div>
+                          <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+                        </div>
+
+                        <div>
+                          <p className="font-semibold text-gray-800 text-base">
+                            {shop.assignedDeliveryBoy.fullName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            📞{" "}
+                            <a
+                              href={`tel:${shop.assignedDeliveryBoy.mobile}`}
+                              className="text-blue-600 hover:underline font-medium"
+                            >
+                              {shop.assignedDeliveryBoy.mobile}
+                            </a>
+                          </p>
+
+                          <p className="text-xs text-gray-500">
+                            📨{" "}
+                            <a
+                              href={`mailto:${shop.assignedDeliveryBoy.email}`}
+                              className="text-blue-600 hover:underline font-medium"
+                            >
+                              {shop.assignedDeliveryBoy.email}
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* MIDDLE INFO */}
+                      <div className="grid grid-cols-2 gap-4 text-xs text-gray-600">
+                        <div>
+                          <p className="text-gray-400">Longitude</p>
+                          <p className="font-medium">
+                            {
+                              shop.assignedDeliveryBoy.location
+                                ?.coordinates?.[0]
+                            }
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">Latitude</p>
+                          <p className="font-medium">
+                            {
+                              shop.assignedDeliveryBoy.location
+                                ?.coordinates?.[1]
+                            }
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">Joined</p>
+                          <p className="font-medium">
+                            {new Date(
+                              shop.assignedDeliveryBoy.createdAt,
+                            ).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">Status</p>
+                          <p className="text-green-600 font-semibold">
+                            Active Rider
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* RIGHT ACTIONS */}
+                      <div className="flex flex-col gap-2">
+                        <button className="bg-green-600 cursor-pointer hover:bg-green-700 text-white text-sm px-4 py-1.5 rounded-lg font-semibold shadow">
+                          View Profile
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 ) : (
                   <p className="text-xs text-green-600">🟢 Nearby Rider</p>
                 )}

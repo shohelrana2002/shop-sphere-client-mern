@@ -1,4 +1,4 @@
-import { Truck, PackageCheck, Wallet, MapPin } from "lucide-react";
+import { Truck, MapPin, Loader } from "lucide-react";
 import { useSelector } from "react-redux";
 import DeliveryNav from "../../shared/DeliveryNav";
 // eslint-disable-next-line no-unused-vars
@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { serverURL } from "../../App";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import DeliveryBoyTracking from "../../components/DeliveryBoy/DeliveryBoyTracking";
 
 const StatCard = ({ icon, title, value, color }) => (
   <motion.div
@@ -69,13 +71,13 @@ const AssignmentCard = ({ data, acceptOrder, rejectOrder }) => {
       <div className="flex gap-3 mt-2">
         <button
           onClick={() => acceptOrder(data.assignmentId)}
-          className="flex-1 bg-linear-to-r from-green-500 to-emerald-600 hover:scale-105 active:scale-95 transition text-white py-2.5 rounded-xl font-semibold shadow-md"
+          className="flex-1 cursor-pointer bg-linear-to-r from-green-500 to-emerald-600 hover:scale-105 active:scale-95 transition text-white py-2.5 rounded-xl font-semibold shadow-md"
         >
           Accept
         </button>
         <button
           onClick={() => rejectOrder(data.assignmentId)}
-          className="flex-1 bg-gray-200 dark:bg-gray-600 hover:bg-red-500 hover:text-white transition py-2.5 rounded-xl font-semibold"
+          className="flex-1 cursor-pointer bg-gray-200 dark:bg-gray-600 hover:bg-red-500 hover:text-white transition py-2.5 rounded-xl font-semibold"
         >
           Reject
         </button>
@@ -95,12 +97,12 @@ const SkeletonCard = () => (
   </div>
 );
 const DeliveryBoyDashboard = () => {
-  const { userData } = useSelector((state) => state.user);
-
-  const [availableAssignments, setAvailableAssignments] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
+  const { userData } = useSelector((state) => state.user);
+  const [availableAssignments, setAvailableAssignments] = useState([]);
+  const [currentOrderLoading, setCurrenOrderLoading] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
+  /*======== Fetch Assignment====== */
   const fetchAssignments = async () => {
     try {
       setLoading(true);
@@ -115,111 +117,226 @@ const DeliveryBoyDashboard = () => {
       setLoading(false);
     }
   };
+  /*========= Accept Order ======== */
   const acceptOrder = async (assignmentId) => {
     try {
       const { data } = await axios.get(
         `${serverURL}/api/orders/accept-order/${assignmentId}`,
         { withCredentials: true },
       );
-      console.log(assignmentId);
-      console.log(data);
+      toast.success(data.message);
+      getCurrentOrder();
     } catch (error) {
-      console.log(error);
+      const msg = error.response?.data?.message || "Something went wrong";
+      // console.log("Backend Error:", msg);
+      toast.error(msg);
     }
   };
+  /*============== Reject Order ==========*/
   const rejectOrder = async (assignmentId) => {
     await axios.post(
       `${serverURL}/api/orders/reject/${assignmentId}`,
       {},
       { withCredentials: true },
     );
-
     setAvailableAssignments((prev) =>
       prev.filter((a) => a.assignmentId !== assignmentId),
     );
   };
-
+  /* ========== Get Current Order ======== */
+  const getCurrentOrder = async () => {
+    setCurrenOrderLoading(true);
+    try {
+      const { data } = await axios.get(
+        `${serverURL}/api/orders/get-current-order`,
+        { withCredentials: true },
+      );
+      setCurrentOrder(data);
+      setCurrenOrderLoading(false);
+    } catch (error) {
+      const msg = error.response?.data?.message || "Something went wrong";
+      console.log(error);
+      toast.error(msg);
+      setCurrenOrderLoading(false);
+    }
+  };
   useEffect(() => {
+    getCurrentOrder();
     if (userData) {
       fetchAssignments();
     }
   }, [userData]);
 
+  if (currentOrderLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-600"></div>
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+            Fetching order details...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen -mt-36 w-full bg-linear-to-br from-slate-100 to-slate-200 dark:from-gray-900 dark:to-gray-800">
       <DeliveryNav />
 
-      <div className="max-w-7xl mx-auto px-6  pt-24 pb-10">
-        {/* Header */}
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg shadow-xl rounded-3xl p-6 flex justify-between items-center border">
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-              <Truck className="text-orange-500" size={30} />
-              Delivery Dashboard
-            </h1>
-            <p className="text-gray-500">Active requests waiting for you 🚚</p>
+      {!currentOrder && (
+        <div className="max-w-7xl mx-auto px-6  pt-24 pb-10">
+          {/* Header */}
+          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg shadow-xl rounded-3xl p-6 flex justify-between items-center border">
+            <div>
+              <h1 className="text-xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <Truck className="text-orange-500" size={30} />
+                Delivery Dashboard
+              </h1>
+              <p className="text-gray-500">
+                Active requests waiting for you 🚚
+              </p>
+            </div>
+
+            <button
+              onClick={fetchAssignments}
+              className="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-5 py-2 rounded-xl font-semibold shadow"
+            >
+              Refresh
+            </button>
           </div>
 
-          <button
-            onClick={fetchAssignments}
-            className="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-5 py-2 rounded-xl font-semibold shadow"
-          >
-            Refresh
-          </button>
+          {/* Assignments */}
+          <div className="mt-12">
+            <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-white">
+              🚚 New Delivery Requests
+            </h2>
+
+            {loading ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            ) : availableAssignments?.length === 0 ? (
+              <div className="bg-white rounded-2xl p-8 text-center shadow border">
+                <p className="text-gray-500">No delivery requests right now</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {availableAssignments?.map((assign) => (
+                  <AssignmentCard
+                    key={assign.assignmentId}
+                    acceptOrder={acceptOrder}
+                    rejectOrder={rejectOrder}
+                    data={assign}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+      )}
 
-        {/* Stats */}
-        {/* <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <StatCard
-            icon={<PackageCheck size={22} />}
-            title="Today Deliveries"
-            value={stats.todayDeliveries}
-            color="bg-blue-500"
-          />
-          <StatCard
-            icon={<Truck size={22} />}
-            title="Total Deliveries"
-            value={stats.totalDeliveries}
-            color="bg-green-500"
-          />
-          <StatCard
-            icon={<Wallet size={22} />}
-            title="Earnings"
-            value={`৳ ${stats.earnings}`}
-            color="bg-purple-500"
-          />
-        </div> */}
+      {currentOrder && (
+        <div className="mt-8 max-w-4xl mx-auto">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border dark:border-gray-700 overflow-hidden text-sm">
+            {/* Shop Header */}
+            <div className="flex items-center gap-3 p-3 bg-orange-300 text-black">
+              <img
+                src={currentOrder?.shop?.image}
+                className="w-10 h-10 rounded-lg object-cover"
+              />
+              <div className="leading-tight">
+                <p className="font-semibold">{currentOrder?.shop?.name}</p>
+                <p className="text-xs opacity-80 truncate">
+                  {currentOrder?.shop?.address}
+                </p>
+              </div>
+            </div>
 
-        {/* Assignments */}
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-white">
-            🚚 New Delivery Requests
-          </h2>
+            <div className="p-3 space-y-3">
+              {/* Customer */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">{currentOrder?.user?.fullName}</p>
+                  <p className="text-xs text-gray-500">
+                    {currentOrder?.user?.mobile}
+                  </p>
+                </div>
+                <a
+                  href={`tel:${currentOrder?.user?.mobile}`}
+                  className="bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold"
+                >
+                  Call
+                </a>
+              </div>
 
-          {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
+              {/* Address */}
+              <p className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded-lg truncate">
+                📍 {currentOrder?.deliveryAddress?.text}
+              </p>
+
+              {/* Items */}
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {currentOrder?.shopOrder?.shopOrderItem?.map((item) => (
+                  <div
+                    key={item?._id}
+                    className="flex justify-between items-center"
+                  >
+                    <p className="truncate">
+                      {item?.name} × {item?.quantity}
+                    </p>
+                    <span className="font-semibold text-orange-600">
+                      ৳ {item?.price * item?.quantity}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total */}
+              {(() => {
+                const subtotal = currentOrder?.shopOrder?.shopOrderItem?.reduce(
+                  (sum, item) => sum + item.price * item.quantity,
+                  0,
+                );
+
+                const deliveryFee = subtotal < 400 ? 40 : 0;
+                const total = subtotal + deliveryFee;
+
+                return (
+                  <div className="pt-2 border-t mt-2 space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Subtotal</span>
+                      <span>৳ {subtotal}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>Delivery Fee</span>
+                      <span
+                        className={
+                          deliveryFee === 0
+                            ? "text-green-600 font-semibold"
+                            : ""
+                        }
+                      >
+                        {deliveryFee === 0 ? "FREE" : `৳ ${deliveryFee}`}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between font-bold text-gray-800 dark:text-white text-base">
+                      <span>Total</span>
+                      <span className="text-orange-600">৳ {total}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
-          ) : availableAssignments.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 text-center shadow border">
-              <p className="text-gray-500">No delivery requests right now</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {availableAssignments.map((assign) => (
-                <AssignmentCard
-                  key={assign.assignmentId}
-                  acceptOrder={acceptOrder}
-                  rejectOrder={rejectOrder}
-                  data={assign}
-                />
-              ))}
-            </div>
-          )}
+          </div>
+          {/* DeliveryBoy Tracking */}
+          <DeliveryBoyTracking data={currentOrder} />
         </div>
-      </div>
+      )}
     </div>
   );
 };
