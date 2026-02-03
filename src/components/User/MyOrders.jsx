@@ -221,13 +221,8 @@ const MyOrders = () => {
                   </span>
 
                   <button
-                    onClick={() =>
-                      (window.location.href = `/track-order/${order._id}`)
-                    }
-                    className="flex items-center gap-2 px-5 py-2 rounded-lg
-                    bg-linear-to-r from-orange-500 to-orange-600
-                    hover:from-orange-600 hover:to-orange-700
-                    text-white text-sm font-semibold shadow-md transition"
+                    onClick={() => navigate(`/track-order/${order._id}`)}
+                    className="flex  items-center gap-2 px-5 py-2 rounded-lg  bg-linear-to-r from-orange-500 to-orange-600 cursor-pointer hover:from-orange-600 hover:to-orange-700  text-white text-sm font-semibold shadow-md transition"
                   >
                     <Truck size={16} /> Track Order
                   </button>

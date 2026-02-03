@@ -241,7 +241,7 @@ const DeliveryBoyDashboard = () => {
 
       {currentOrder && (
         <div className="mt-8 max-w-4xl mx-auto">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border dark:border-gray-700 overflow-hidden text-sm">
+          <div className="bg-white  rounded-2xl shadow-lg border dark:border-gray-700 overflow-hidden text-sm">
             {/* Shop Header */}
             <div className="flex items-center gap-3 p-3 bg-orange-300 text-black">
               <img
