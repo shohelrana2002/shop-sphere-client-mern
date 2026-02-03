@@ -22,6 +22,7 @@ import MyOrders from "./components/User/MyOrders";
 import PlaceOrderSuccess from "./components/Payment/PlaceOrderSuccess";
 import MangeOrders from "./components/Owner/MangeOrders";
 import useUpdateLocation from "./hooks/useUpdateLocation";
+import TrackOrder from "./components/User/TrackOrder";
 // import useGetMyOrders from "./hooks/useGetMyOrders";
 export const serverURL = "http://localhost:3000";
 function App() {
@@ -111,6 +112,16 @@ function App() {
         element={
           userData?.role === "owner" ? (
             <MangeOrders />
+          ) : (
+            <Navigate to={"/signIn"} />
+          )
+        }
+      />
+      <Route
+        path="/track-order/:id"
+        element={
+          userData?.role === "user" ? (
+            <TrackOrder />
           ) : (
             <Navigate to={"/signIn"} />
           )

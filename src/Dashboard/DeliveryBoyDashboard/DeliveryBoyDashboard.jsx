@@ -102,6 +102,7 @@ const DeliveryBoyDashboard = () => {
   const [availableAssignments, setAvailableAssignments] = useState([]);
   const [currentOrderLoading, setCurrenOrderLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
+  const [show, setShow] = useState(false);
   /*======== Fetch Assignment====== */
   const fetchAssignments = async () => {
     try {
@@ -335,6 +336,57 @@ const DeliveryBoyDashboard = () => {
           </div>
           {/* DeliveryBoy Tracking */}
           <DeliveryBoyTracking data={currentOrder} />
+          {/* button or delivery otp send */}
+          {!show ? (
+            <button
+              onClick={() => setShow(true)}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold shadow transition active:scale-95"
+            >
+              ✅ Mark as Delivered
+            </button>
+          ) : (
+            <div className="mt-4 p-4 rounded-2xl bg-white dark:bg-gray-900 border shadow space-y-4">
+              <div className="text-center">
+                <p className="font-semibold text-gray-800 dark:text-white">
+                  Delivery Verification
+                </p>
+                <p className="text-xs text-gray-500">
+                  Send OTP to customer to confirm delivery
+                </p>
+              </div>
+
+              {/* OTP Input */}
+              <div>
+                <label className="text-xs text-gray-500">Delivery Code</label>
+                <input
+                  type="text"
+                  name="code"
+                  maxLength={6}
+                  placeholder="Enter 6 digit OTP"
+                  className="w-full mt-1 px-4 py-2 rounded-xl border focus:ring-2 focus:ring-green-500 outline-none text-center tracking-widest font-semibold"
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-2">
+                <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl font-semibold shadow">
+                  📩 Send OTP {currentOrder?.user?.fullName?.slice(0, 20)}
+                </button>
+
+                <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-semibold shadow">
+                  ✔ Verify
+                </button>
+              </div>
+
+              {/* Cancel */}
+              <button
+                onClick={() => setShow(false)}
+                className="w-full text-xs text-gray-500 hover:text-red-500"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
