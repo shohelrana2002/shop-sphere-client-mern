@@ -97,12 +97,13 @@ const SkeletonCard = () => (
   </div>
 );
 const DeliveryBoyDashboard = () => {
+  const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const { userData } = useSelector((state) => state.user);
   const [availableAssignments, setAvailableAssignments] = useState([]);
   const [currentOrderLoading, setCurrenOrderLoading] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
-  const [show, setShow] = useState(false);
+  const [otp, setOtp] = useState("");
   /*======== Fetch Assignment====== */
   const fetchAssignments = async () => {
     try {
@@ -155,12 +156,44 @@ const DeliveryBoyDashboard = () => {
       setCurrentOrder(data);
       setCurrenOrderLoading(false);
     } catch (error) {
-      const msg = error.response?.data?.message || "Something went wrong";
       console.log(error);
-      toast.error(msg);
       setCurrenOrderLoading(false);
     }
   };
+  /*======= Send Delivery OTP ========== */
+  const sendDeliveryOtp = async (orderId, shopOrderId) => {
+    setShow(true);
+    try {
+      const { data } = await axios.post(
+        `${serverURL}/api/orders/send-delivery-otp`,
+        { orderId, shopOrderId },
+        { withCredentials: true },
+      );
+
+      toast.success(data.message);
+    } catch (error) {
+      const msg = error.response?.data?.message || "Something went wrong";
+      toast.error(msg);
+    }
+  };
+  /*======= Send Delivery OTP ========== */
+  const verifyOtp = async (orderId, shopOrderId) => {
+    setShow(true);
+    try {
+      const { data } = await axios.post(
+        `${serverURL}/api/orders/verify-delivery-otp`,
+        { orderId, shopOrderId, otp },
+        { withCredentials: true },
+      );
+
+      toast.success(data.message);
+      window.location.reload();
+    } catch (error) {
+      const msg = error.response?.data?.message || "Something went wrong";
+      toast.error(msg);
+    }
+  };
+
   useEffect(() => {
     getCurrentOrder();
     if (userData) {
@@ -339,7 +372,9 @@ const DeliveryBoyDashboard = () => {
           {/* button or delivery otp send */}
           {!show ? (
             <button
-              onClick={() => setShow(true)}
+              onClick={() =>
+                sendDeliveryOtp(currentOrder._id, currentOrder.shopOrder._id)
+              }
               className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold shadow transition active:scale-95"
             >
               ✅ Mark as Delivered
@@ -362,6 +397,8 @@ const DeliveryBoyDashboard = () => {
                   type="text"
                   name="code"
                   maxLength={6}
+                  defaultValue={otp}
+                  onChange={(e) => setOtp(e.target.value)}
                   placeholder="Enter 6 digit OTP"
                   className="w-full mt-1 px-4 py-2 rounded-xl border focus:ring-2 focus:ring-green-500 outline-none text-center tracking-widest font-semibold"
                 />
@@ -369,11 +406,12 @@ const DeliveryBoyDashboard = () => {
 
               {/* Buttons */}
               <div className="flex gap-2">
-                <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl font-semibold shadow">
-                  📩 Send OTP {currentOrder?.user?.fullName?.slice(0, 20)}
-                </button>
-
-                <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-semibold shadow">
+                <button
+                  onClick={() =>
+                    verifyOtp(currentOrder._id, currentOrder.shopOrder._id)
+                  }
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl font-semibold shadow"
+                >
                   ✔ Verify
                 </button>
               </div>

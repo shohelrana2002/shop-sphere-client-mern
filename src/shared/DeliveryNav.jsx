@@ -2,7 +2,20 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Package, Wallet, User, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  Wallet,
+  User,
+  Menu,
+  X,
+  LogOut,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { serverURL } from "../App";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/userSlice";
 
 const NavItem = ({ to, icon, label, onClick }) => (
   <NavLink
@@ -24,7 +37,18 @@ const NavItem = ({ to, icon, label, onClick }) => (
 
 export default function DeliveryNavbar() {
   const [open, setOpen] = useState(false);
-
+  const dispatch = useDispatch();
+  const handleLogout = async () => {
+    try {
+      const { data } = await axios.get(`${serverURL}/api/auth/signout`, {
+        withCredentials: true,
+      });
+      dispatch(setUser(null));
+      toast.success(data?.message || "Logout success");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="sticky top-0 z-50 backdrop-blur-xl bg-transparent  border-b border-orange-300/80 ">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
@@ -63,6 +87,12 @@ export default function DeliveryNavbar() {
           {/* Profile */}
           <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center cursor-pointer shadow-md hover:scale-105 transition">
             <User size={18} />
+          </div>
+          <div
+            onClick={handleLogout}
+            className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center cursor-pointer shadow-md hover:scale-105 transition"
+          >
+            <LogOut size={18} />
           </div>
 
           {/* Mobile Menu Button */}

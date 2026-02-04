@@ -118,7 +118,7 @@ const TrackOrder = () => {
         </div>
 
         {/* Live Tracking Map */}
-        {rider && (
+        {rider && currentOrder.shopOrder[0]?.status !== "delivered" && (
           <DeliveryBoyTracking
             data={{
               deliveryBoyLocation: {
