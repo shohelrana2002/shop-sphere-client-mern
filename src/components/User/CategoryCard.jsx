@@ -1,6 +1,9 @@
-const CategoryCard = ({ name, image }) => {
+const CategoryCard = ({ name, image, handleClick }) => {
   return (
-    <div className="relative w-32 h-32 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-orange-200 bg-white shadow-md hover:shadow-xl  transition-all duration-300 cursor-pointer group">
+    <div
+      onClick={handleClick}
+      className="relative w-32 h-32 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-orange-200 bg-white shadow-md hover:shadow-xl  transition-all duration-300 cursor-pointer group"
+    >
       {/* Image */}
       <img
         src={image}

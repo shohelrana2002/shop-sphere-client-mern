@@ -16,6 +16,18 @@ const UserDashboard = () => {
   const catIntervalRef = useRef(null);
   const [catCanLeft, setCatCanLeft] = useState(false);
   const [catCanRight, setCatCanRight] = useState(false);
+  const [updatedItemsList, setUpdatedItemsList] = useState([]);
+  const handleFilterByCategory = (category) => {
+    if (category === "All") {
+      setUpdatedItemsList(itemsInMyCity);
+    } else {
+      const filterList = itemsInMyCity?.filter((i) => i.category === category);
+      setUpdatedItemsList(filterList);
+    }
+  };
+  useEffect(() => {
+    setUpdatedItemsList(itemsInMyCity);
+  }, [itemsInMyCity]);
 
   const checkCatScroll = () => {
     const slider = catSliderRef.current;
@@ -189,6 +201,7 @@ const UserDashboard = () => {
               shopInMyCity.map((category, i) => (
                 <CategoryCard
                   key={i}
+                  handleClick={() => handleFilterByCategory(category.category)}
                   name={category.name}
                   image={category.image}
                 />
@@ -216,7 +229,7 @@ const UserDashboard = () => {
           Suggested Food Items
         </h2>
         <div className="w-full h-auto flex flex-wrap gap-7 justify-center">
-          {itemsInMyCity?.length > 0 &&
+          {updatedItemsList?.length > 0 &&
             itemsInMyCity?.map((item, i) => <FoodCard key={i} data={item} />)}
         </div>
       </div>
