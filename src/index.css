@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Firefox,IE/Edge old Version */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+/* chrome ,safari ,opera */
+::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none;
+}
+
+@theme {
+  /* Primary / Dark */
+  --color-dark: #1d1d1b;
+  --color-text: #1d1d1b;
+
+  /* Background / Card */
+  --color-bg: #f9efde;
+  --color-card: #f6f4ff;
+
+  /* Success / Highlights */
+  --color-success: #e4f5df;
+
+  /* Accent / Action */
+  --color-accent: #ffd5ea;
+
+  /* Optional shades */
+  --color-light-bg: #f6f4ff;
+}
