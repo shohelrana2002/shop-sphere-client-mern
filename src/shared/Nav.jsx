@@ -21,10 +21,9 @@ const Nav = () => {
     (state) => state.user,
   );
   const { myShopData } = useSelector((state) => state.owner);
-  const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-
+  const [query, setQuery] = useState("");
   const dropdownRef = useRef(null);
   // outside click close dropdown
   useEffect(() => {
@@ -49,7 +48,21 @@ const Nav = () => {
       console.log(error);
     }
   };
-
+  /*============= Search Handle Add =========== */
+  const handleSearchItems = async () => {
+    try {
+      const { data } = await axios.get(
+        `${serverURL}/api/item/search-items?query=${query}&city=${currentCity}`,
+        { withCredentials: true },
+      );
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    handleSearchItems();
+  }, [query]);
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#fff9f6] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
@@ -72,15 +85,15 @@ const Nav = () => {
             <div className="relative w-full max-w-lg">
               <FiSearch className="absolute left-3 top-3 text-gray-400" />
               <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 type="text"
                 placeholder="Search products..."
                 className="w-full pl-10 pr-10 py-2 border rounded-full focus:ring-2 focus:ring-orange-400 focus:outline-none"
               />
-              {search && (
+              {query && (
                 <FiX
-                  onClick={() => setSearch(search.slice(0, -1))}
+                  onClick={() => setQuery(query.slice(0, -1))}
                   className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-red-500"
                 />
               )}
@@ -199,16 +212,16 @@ const Nav = () => {
           <div className="relative">
             <FiSearch className="absolute left-3 top-3 text-gray-400" />
             <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               type="text"
               placeholder="Search..."
               className="w-full pl-10 pr-10 py-2 border rounded-full focus:ring-2 focus:ring-orange-400 focus:outline-none"
             />
-            {search && (
+            {query && (
               <FiX
                 onClick={() => {
-                  setSearch("");
+                  setQuery("");
                   setMobileSearchOpen(false);
                 }}
                 className="absolute right-3 top-3 cursor-pointer text-gray-500"
