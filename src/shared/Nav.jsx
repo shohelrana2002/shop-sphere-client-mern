@@ -10,7 +10,7 @@ import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { serverURL } from "../App";
-import { setUser } from "../redux/userSlice";
+import { setSearchItems, setUser } from "../redux/userSlice";
 import toast from "react-hot-toast";
 import { FaCartPlus, FaHourglassHalf } from "react-icons/fa";
 import { ClipboardList } from "lucide-react";
@@ -55,13 +55,18 @@ const Nav = () => {
         `${serverURL}/api/item/search-items?query=${query}&city=${currentCity}`,
         { withCredentials: true },
       );
-      console.log(data);
+      dispatch(setSearchItems(data));
     } catch (error) {
       console.log(error);
     }
   };
   useEffect(() => {
-    handleSearchItems();
+    if (query) {
+      handleSearchItems();
+    } else {
+      dispatch(setSearchItems(null));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#fff9f6] shadow-sm">

@@ -8,7 +8,7 @@ import FoodCard from "../../components/User/FoodCard";
 import { useNavigate } from "react-router";
 
 const UserDashboard = () => {
-  const { currentCity, shopInMyCity, itemsInMyCity } = useSelector(
+  const { currentCity, searchItems, shopInMyCity, itemsInMyCity } = useSelector(
     (state) => state?.user,
   );
   const navigate = useNavigate();
@@ -114,6 +114,27 @@ const UserDashboard = () => {
   return (
     <>
       <Nav />
+      <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-6 justify-center py-10">
+        {searchItems && searchItems.length > 0 ? (
+          searchItems.map((item) => <FoodCard key={item._id} data={item} />)
+        ) : searchItems && searchItems.length === 0 ? (
+          <div className="w-full flex flex-col items-center justify-center py-16 text-center">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png"
+              alt="No Product"
+              className="w-28 h-28 opacity-60 mb-4"
+            />
+
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+              No Product Found
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Try searching with a different keyword
+            </p>
+          </div>
+        ) : null}
+      </div>
 
       {/* ------------------ CATEGORY SLIDER ------------------ */}
       <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-3">

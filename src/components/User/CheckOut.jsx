@@ -57,6 +57,7 @@ const CheckOut = () => {
 
   const [address, setAddress] = useState(addressCurrent || "");
   const [search, setSearch] = useState("");
+  const [currentLoading, setCurrentLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [position, setPosition] = useState([location?.lat, location?.lon]);
   //   const [loading, setLoading] = useState(false);
@@ -87,17 +88,24 @@ const CheckOut = () => {
 
   /* ===== Current location ===== */
   const handleCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      setPosition([lat, lng]);
+    setCurrentLoading(true);
+    try {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setPosition([lat, lng]);
 
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
-      );
-      const data = await res.json();
-      setAddress(data?.display_name);
-    });
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
+        );
+        setCurrentLoading(false);
+        const data = await res.json();
+        setAddress(data?.display_name);
+      });
+    } catch (error) {
+      setCurrentLoading(false);
+      console.log(error);
+    }
   };
 
   /* ===== Marker drag location ===== */
@@ -227,10 +235,17 @@ const CheckOut = () => {
           />
 
           <button
+            disabled={currentLoading}
             onClick={handleCurrentLocation}
             className="flex cursor-pointer items-center gap-2 text-sm text-orange-600"
           >
-            <Navigation size={16} /> Use current location
+            {currentLoading ? (
+              "Loading Current Location..."
+            ) : (
+              <>
+                <Navigation size={16} /> Use current location
+              </>
+            )}
           </button>
 
           {/* Map */}

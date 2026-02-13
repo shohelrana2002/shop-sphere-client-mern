@@ -14,6 +14,7 @@ const userSlice = createSlice({
     totalAmount: 0,
     myOrders: null,
     myOrdersLoading: true,
+    searchItems: null,
   },
   reducers: {
     setUser: (state, action) => {
@@ -83,17 +84,9 @@ const userSlice = createSlice({
         shopOrderItem.status = status;
       }
     },
-
-    // updateOrderStatus: (state, action) => {
-    //   const { orderId, shopId, status } = action.payload;
-    //   const order = state.myOrders.find((o) => o._id == orderId);
-
-    //   if (order) {
-    //     if (order.shopOrder && order.shopOrder.shop._id?.toString() == shopId) {
-    //       order.shopOrder.status = status;
-    //     }
-    //   }
-    // },
+    setSearchItems: (state, action) => {
+      state.searchItems = action.payload;
+    },
   },
 });
 
@@ -110,5 +103,6 @@ export const {
   removeFromCart,
   setMyOrders,
   updateOrderStatus,
+  setSearchItems,
 } = userSlice.actions;
 export default userSlice.reducer;
