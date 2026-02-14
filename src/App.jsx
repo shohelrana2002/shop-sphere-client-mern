@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router";
 import "./index.css";
 import useGetCurrentUser from "./hooks/useGetCurrentUser";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Home from "./pages/Home/Home";
 import SignUp from "./pages/Auth/SignUp";
 import SignIn from "./pages/Auth/SignIn";
@@ -24,11 +24,14 @@ import MangeOrders from "./components/Owner/MangeOrders";
 import useUpdateLocation from "./hooks/useUpdateLocation";
 import TrackOrder from "./components/User/TrackOrder";
 import Shop from "./components/User/Shop";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
+import { setSocket } from "./redux/userSlice";
 // import useGetMyOrders from "./hooks/useGetMyOrders";
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
-
+  const dispatch = useDispatch();
   useGetCurrentUser();
   useGetMyShop();
   useGetCity();
@@ -36,7 +39,19 @@ function App() {
   useGetItemsByCity();
   // useGetMyOrders();
   useUpdateLocation();
-
+  useEffect(() => {
+    const socketInstance = io(serverURL, { withCredentials: true });
+    dispatch(setSocket(socketInstance));
+    socketInstance.on("connect", () => {
+      if (userData) {
+        socketInstance.emit("identity", { userId: userData._id });
+      }
+    });
+    return () => {
+      socketInstance.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData?._id]);
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">

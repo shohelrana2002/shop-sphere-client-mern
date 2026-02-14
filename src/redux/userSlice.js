@@ -15,6 +15,7 @@ const userSlice = createSlice({
     myOrders: null,
     myOrdersLoading: true,
     searchItems: null,
+    socket: null,
   },
   reducers: {
     setUser: (state, action) => {
@@ -87,11 +88,15 @@ const userSlice = createSlice({
     setSearchItems: (state, action) => {
       state.searchItems = action.payload;
     },
+    setSocket: (state, action) => {
+      state.socket = action.payload;
+    },
   },
 });
 
 export const {
   setUser,
+  setSocket,
   setUserLoading,
   setCurrentCity,
   setCurrentState,
