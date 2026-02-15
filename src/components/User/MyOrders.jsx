@@ -2,14 +2,30 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Loader, Store, Truck } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useGetMyOrders from "../../hooks/useGetMyOrders";
+import { useEffect } from "react";
+import { setMyOrders } from "../../redux/userSlice";
 
 const MyOrders = () => {
   useGetMyOrders();
-  const { myOrders, myOrdersLoading } = useSelector((state) => state.user);
-
+  const { userData, myOrders, myOrdersLoading, socket } = useSelector(
+    (state) => state.user,
+  );
   const navigate = useNavigate();
+  /*======= Socket Server call here ======== */
+  const dispatch = useDispatch();
+  useEffect(() => {
+    socket?.on("newOrder", (data) => {
+      if (data.shopOrder?.owner?._id == userData._id) {
+        dispatch(setMyOrders([data, ...myOrders]));
+      }
+    });
+    return () => {
+      socket?.off("newOrder");
+    };
+  }, [socket]);
+
   if (myOrdersLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
