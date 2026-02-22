@@ -24,6 +24,7 @@ const MyOrders = () => {
     return () => {
       socket?.off("newOrder");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   if (myOrdersLoading) {

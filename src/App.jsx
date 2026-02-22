@@ -27,7 +27,8 @@ import Shop from "./components/User/Shop";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { setSocket } from "./redux/userSlice";
-// import useGetMyOrders from "./hooks/useGetMyOrders";
+import useGetMyOrders from "./hooks/useGetMyOrders";
+
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
@@ -37,11 +38,13 @@ function App() {
   useGetCity();
   useGetShopByCity();
   useGetItemsByCity();
-  // useGetMyOrders();
+  useGetMyOrders();
   useUpdateLocation();
+
   useEffect(() => {
     const socketInstance = io(serverURL, { withCredentials: true });
-    dispatch(setSocket(socketInstance));
+    console.log("socketInstance error:", socketInstance);
+
     socketInstance.on("connect", () => {
       if (userData) {
         socketInstance.emit("identity", { userId: userData._id });
