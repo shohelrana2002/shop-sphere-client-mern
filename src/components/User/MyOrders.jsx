@@ -15,18 +15,22 @@ const MyOrders = () => {
   const navigate = useNavigate();
   /*======= Socket Server call here ======== */
   const dispatch = useDispatch();
+
   useEffect(() => {
     socket?.on("newOrder", (data) => {
-      if (data.shopOrder?.owner?._id == userData._id) {
-        dispatch(setMyOrders([data, ...myOrders]));
+      if (data.shopOrder?.owner?._id === userData?._id) {
+        const a = dispatch(setMyOrders([data, ...myOrders]));
+        console.log("MyOrders:", a);
       }
     });
+
     return () => {
       socket?.off("newOrder");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
+  // Loader show
   if (myOrdersLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

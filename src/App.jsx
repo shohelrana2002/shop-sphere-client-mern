@@ -28,7 +28,7 @@ import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { setSocket } from "./redux/userSlice";
 import useGetMyOrders from "./hooks/useGetMyOrders";
-//hhhhhhhhhhh
+// import useGetMyOrders from "./hooks/useGetMyOrders";
 export const serverURL = "http://localhost:3000";
 function App() {
   const { userData, loading } = useSelector((state) => state.user);
@@ -41,10 +41,15 @@ function App() {
   useGetMyOrders();
   useUpdateLocation();
 
+  // socket server call here
   useEffect(() => {
-    const socketInstance = io(serverURL, { withCredentials: true });
-    console.log("socketInstance error:", socketInstance);
+    if (!userData?._id) return;
+    const socketInstance = io(serverURL, {
+      withCredentials: true,
+      transports: ["websocket"],
+    });
 
+    dispatch(setSocket(socketInstance));
     socketInstance.on("connect", () => {
       if (userData) {
         socketInstance.emit("identity", { userId: userData._id });
@@ -55,6 +60,8 @@ function App() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData?._id]);
+
+  // loader show here
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">

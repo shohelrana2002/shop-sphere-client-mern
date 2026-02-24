@@ -12,7 +12,7 @@ const userSlice = createSlice({
     itemsInMyCity: null,
     cartItems: [],
     totalAmount: 0,
-    myOrders: null,
+    myOrders: [],
     myOrdersLoading: true,
     searchItems: null,
     socket: null,
