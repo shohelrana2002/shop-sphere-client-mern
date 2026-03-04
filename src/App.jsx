@@ -41,7 +41,7 @@ function App() {
   useGetMyOrders();
   useUpdateLocation();
 
-  // socket server call here jjjjjj
+  // socket server call here jjjjjjyyyyy
   useEffect(() => {
     if (!userData?._id) return;
     const socketInstance = io(serverURL, {
